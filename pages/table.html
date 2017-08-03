@@ -1,24 +1,15 @@
 
-<!DOCTYPE html>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
     <head>
-        <meta charset="utf-8">
+        <meta charset="utf-8" />
         <meta http-equiv="X-UA-Compatible" content="IE=Edge"/>
-        <script src="//cdnjs.cloudflare.com/ajax/libs/require.js/2.3.3/require.min.js"></script>
-        <link href="//cdn.rawgit.com/ehouais/charts/v0.3.1/diagram/../condensed-font.css" rel="stylesheet">
-        <link href="README.md" rel="doc">
-        <style>
-            html, body {
-                height: 100%;
-                margin: 0;
-                overflow: hidden;
-                background-color: #fff;
-            }
-        </style>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/require.js/2.3.2/require.min.js"></script>
+        <link href="//cdn.rawgit.com/ehouais/webviews/v0.3.0/table/style.css" rel="stylesheet">
     </head>
     <body>
         <script>
-            var config = {"baseUrl":"//cdn.rawgit.com/ehouais/charts/v0.3.1/diagram","paths":{"http":"//cdn.rawgit.com/ehouais/js-data-libs/v0.5.0/http","text":"//cdnjs.cloudflare.com/ajax/libs/require-text/2.0.12/text.min","gist-fs":"//cdn.rawgit.com/ehouais/js-data-libs/v0.5.0/gist-fs","on-demand":"//cdn.rawgit.com/ehouais/js-data-libs/v0.5.0/on-demand","crypto":"//cdn.rawgit.com/ehouais/js-data-libs/v0.5.0/crypto","sjcl":"//cdnjs.cloudflare.com/ajax/libs/sjcl/1.0.6/sjcl.min","snap.svg":"//cdnjs.cloudflare.com/ajax/libs/snap.svg/0.5.1/snap.svg-min","twopassresize":"//cdn.rawgit.com/ehouais/charts/v0.3.1/twopassresize","tabletop":"//cdnjs.cloudflare.com/ajax/libs/tabletop.js/1.5.2/tabletop.min"},"shim":{"sjcl":{"exports":"sjcl"},"ext_parser":{"exports":"parser"}}};
+            var config = {"baseUrl":"//cdn.rawgit.com/ehouais/webviews/v0.3.0/table","paths":{"http":"//cdn.rawgit.com/ehouais/js-data-libs/v0.5.0/http","text":"//cdnjs.cloudflare.com/ajax/libs/require-text/2.0.12/text.min","sjcl":"//cdnjs.cloudflare.com/ajax/libs/sjcl/1.0.6/sjcl.min","gist-fs":"//cdn.rawgit.com/ehouais/js-data-libs/v0.5.0/gist-fs","on-demand":"//cdn.rawgit.com/ehouais/js-data-libs/v0.5.0/on-demand","crypto":"//cdn.rawgit.com/ehouais/js-data-libs/v0.5.0/crypto","tablesort":"//cdnjs.cloudflare.com/ajax/libs/tablesort/5.0.0/tablesort.min"},"shim":{"sjcl":{"exports":"sjcl"},"tablesort":{"exports":"Tablesort"}}};
             config.config = {text: {useXhr: function(url, protocol, hostname, port) {
                 return true; // force use of CORS for text dependencies
             }}};
@@ -36,28 +27,25 @@
             var layout = params.layout;
             var data = params.data;
 
-            require(['chart'], function(Chart) {
-                var chart,
-                    parse = function(str, cb) {
+            require(['renderer'], function(renderer) {
+                var parse = function(str, cb) {
 
-                        require(['ext_parser'], function(parser) {
-                            try {
-                                cb(parser.parse(str.replace(/\n|\r/g, '')));
-                            } catch(e) {
-                                console.log('Parser error: '+e.message);
-                            }
+                        var rows = str.trim().split('\n').map(function(row) {
+                                return row.split(',').map(function(value) {
+                                    return value.trim();
+                                });
+                            });
+                        // First row is considered header
+                        cb({
+                            cols: rows.shift().map(function(value) { return {label: value}; }),
+                            rows: rows
                         });
+
 
                     },
                     update = function(data) {
-                        chart.update(data);
-                    },
-                    params = {margin: 0.05};
-
-
-                chart = Chart(document.body, params);
-
-                window.addEventListener('resize', chart.resize);
+                        renderer.update(data);
+                    };
 
 var match,
     str;

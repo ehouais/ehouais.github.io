@@ -19,7 +19,7 @@
     </head>
     <body>
         <script>
-            var config = {"baseUrl":"//cdn.rawgit.com/ehouais/charts/v0.3.1/lines","paths":{"http":"//cdn.rawgit.com/ehouais/js-data-libs/v0.5.0/http","text":"//cdnjs.cloudflare.com/ajax/libs/require-text/2.0.12/text.min","gist-fs":"//cdn.rawgit.com/ehouais/js-data-libs/v0.5.0/gist-fs","on-demand":"//cdn.rawgit.com/ehouais/js-data-libs/v0.5.0/on-demand","crypto":"//cdn.rawgit.com/ehouais/js-data-libs/v0.5.0/crypto","sjcl":"//cdnjs.cloudflare.com/ajax/libs/sjcl/1.0.6/sjcl.min","d3":"//cdnjs.cloudflare.com/ajax/libs/d3/4.2.8/d3.min","timescale":"//cdn.rawgit.com/ehouais/charts/v0.3.1/timescale","twopassresize":"//cdn.rawgit.com/ehouais/charts/v0.3.1/twopassresize","datatable":"//cdn.rawgit.com/ehouais/js-data-libs/v0.5.0/datatable"},"shim":{"sjcl":{"exports":"sjcl"}}};
+            var config = {"baseUrl":"//cdn.rawgit.com/ehouais/charts/v0.3.1/lines","paths":{"http":"//cdn.rawgit.com/ehouais/js-data-libs/v0.5.0/http","text":"//cdnjs.cloudflare.com/ajax/libs/require-text/2.0.12/text.min","gist-fs":"//cdn.rawgit.com/ehouais/js-data-libs/v0.5.0/gist-fs","on-demand":"//cdn.rawgit.com/ehouais/js-data-libs/v0.5.0/on-demand","crypto":"//cdn.rawgit.com/ehouais/js-data-libs/v0.5.0/crypto","sjcl":"//cdnjs.cloudflare.com/ajax/libs/sjcl/1.0.6/sjcl.min","d3":"//cdnjs.cloudflare.com/ajax/libs/d3/4.2.8/d3.min","timescale":"//cdn.rawgit.com/ehouais/charts/v0.3.1/timescale","twopassresize":"//cdn.rawgit.com/ehouais/charts/v0.3.1/twopassresize","datatable":"//cdn.rawgit.com/ehouais/js-data-libs/v0.5.0/datatable","tabletop":"//cdnjs.cloudflare.com/ajax/libs/tabletop.js/1.5.2/tabletop.min"},"shim":{"sjcl":{"exports":"sjcl"}}};
             config.config = {text: {useXhr: function(url, protocol, hostname, port) {
                 return true; // force use of CORS for text dependencies
             }}};
@@ -55,6 +55,9 @@
                         });
 
                     },
+                    update = function(data) {
+                        chart.update(data);
+                    },
                     params = {margin: 0.05};
 
 
@@ -64,72 +67,56 @@
 
                 window.addEventListener('resize', chart.resize);
 
-                var match,
-                    str,
-                    update = function(data) {
-                        chart.update(data);
-                    },
-                    debounce = function(func, wait, immediate) {
-                        var timeout;
-                        return function() {
-                            var context = this, args = arguments;
-                            var later = function() {
-                                timeout = null;
-                                if (!immediate) func.apply(context, args);
-                            };
-                            var callNow = immediate && !timeout;
-                            clearTimeout(timeout);
-                            timeout = setTimeout(later, wait);
-                            if (callNow) func.apply(context, args);
-                        };
-                    },
-                    Cache = function(id, cb, delay) {
-                        var debounced = debounce(cb, delay);
+var match,
+    str;
 
-                        return function(data) {
-                            localStorage.setItem(id, data);
-                            debounced(data);
-                        };
-                    };
+if (match = data.match(/^data:([^,;]+)(;[^,]+)?,(.*)/)) {
+    str = decodeURIComponent(match[3]);
+    if (match[1] == 'text/csv') {
+        str = str.replace(/;/g, '\n');
+    }
+    parse(str, chart.update);
+} else if (data.match(/^https?:/)) {
+    require(['http', 'on-demand', 'crypto'], function(Http, OnDemand, crypto) {
+        var uri = data,
+            cipherKey = OnDemand(sessionStorage, 'cipherKey');
 
-                if (match = data.match(/^data:([^,;]+)(;[^,]+)?,(.*)/)) {
-                    str = decodeURIComponent(match[3]);
-                    if (match[1] == 'text/csv') {
-                        str = str.replace(/;/g, '\n');
-                    }
-                    parse(str, update);
-                } else if (data.match(/^https?:/)) {
-                    require(['http', 'on-demand', 'crypto'], function(Http, OnDemand, crypto) {
-                        var uri = data,
-                            cipherKey = OnDemand(sessionStorage, 'cipherKey');
+        Http.get(uri, function(data) {
+            parse(crypto.decipher(cipherKey(), data), update);
+        }, true);
+    });
+} else if (match = data.match(/db\/(.+)/)) {
+    require(['gist-fs', 'on-demand', 'crypto'], function(GistFs, OnDemand, crypto) {
+        var id = match[1],
+            githubPwd = OnDemand(sessionStorage, 'githubPwd'),
+            dbGistId = OnDemand(localStorage, 'dbGistId'),
+            fs = GistFs('ehouais', githubPwd(), dbGistId()),
+            cipherKey = OnDemand(sessionStorage, 'cipherKey');
 
-                        Http.get(uri, function(data) {
-                            parse(crypto.decipher(cipherKey(), data), update);
-                        }, true);
+        fs.get(id, function(data) {
+            parse(crypto.decipher(cipherKey(), data.content), update);
+        });
+    });
+} else if (match = data.match(/gs\/(.+)/)) {
+    require(['tabletop'], function(Tabletop) {
+        Tabletop.init({
+            key: 'https://docs.google.com/spreadsheets/d/'+match[1]+'/pubhtml',
+            callback: function(data, tabletop) {
+                var sheet = tabletop.models[tabletop.modelNames[0]]; // first sheet
+                update({
+                    cols: sheet.columnNames.map(function(name) {
+                        return {label: name};
+                    }),
+                    rows: sheet.toArray()
+                });
+            },
+            simpleSheet: true
+        });
+    });
+} else {
+    parse(data, update);
+}
 
-                        chart.onchange && chart.onchange(Cache('dataCache', function(data) {
-                            Http.put(uri, crypto.cipher(cipherKey(), data), true);
-                        }, 5000));
-                    });
-                } else if (match = data.match(/db\/(.+)/)) {
-                    require(['gist-fs', 'on-demand', 'crypto'], function(GistFs, OnDemand, crypto) {
-                        var id = match[1],
-                            githubPwd = OnDemand(sessionStorage, 'githubPwd'),
-                            dbGistId = OnDemand(localStorage, 'dbGistId'),
-                            fs = GistFs('ehouais', githubPwd(), dbGistId()),
-                            cipherKey = OnDemand(sessionStorage, 'cipherKey');
-
-                        fs.get(id, function(data) {
-                            parse(crypto.decipher(cipherKey(), data.content), update);
-                        });
-
-                        chart.onchange && chart.onchange(Cache('dataCache', function(data) {
-                            fs.update(id, crypto.cipher(cipherKey(), data));
-                        }, 5000));
-                    });
-                } else {
-                    parse(data, update);
-                }
             });
         </script>
     </body>
