@@ -75,7 +75,6 @@
 
                     fs.update(id, crypto.cipher(cipherKey(), data), function() {
                         console.log('saved.');
-                        handler(data);
                     });
                 });
             }, 5000),
@@ -84,7 +83,10 @@
                     handler = cb;
                     load();
                 },
-                save: save,
+                save: function(data) {
+                    save(data);
+                    handler(data);
+                },
                 trigger: function() {}
             };
 

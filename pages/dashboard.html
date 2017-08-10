@@ -1,8 +1,6 @@
 ﻿<html>
     <head>
         <meta charset="utf-8">
-        <script src="//cdnjs.cloudflare.com/ajax/libs/sjcl/1.0.6/sjcl.min.js"></script>
-        <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
         <script src="//cdnjs.cloudflare.com/ajax/libs/require.js/2.3.2/require.min.js"></script>
 <script>
     require.config({
@@ -73,7 +71,6 @@
 
                     fs.update(id, crypto.cipher(cipherKey(), data), function() {
                         console.log('saved.');
-                        handler(data);
                     });
                 });
             }, 5000),
@@ -82,7 +79,10 @@
                     handler = cb;
                     load();
                 },
-                save: save,
+                save: function(data) {
+                    save(data);
+                    handler(data);
+                },
                 trigger: function() {}
             };
 
@@ -117,14 +117,6 @@
                 height: 100%;
                 margin: auto;
             }
-            #form {
-                display: table-cell;
-                vertical-align: middle;
-            }
-            #form iframe {
-                border: none;
-                width: 400px;
-            }
             .frame {
                 position: absolute;
                 overflow: hidden;
@@ -154,19 +146,12 @@
                 background-color: #fff;
                 color: #f00;
             }
-            #overlay, #creation_popup, #edition_popup, #popup_overlay {
+            #overlay {
                 position: absolute;
                 top: 0;
                 width: 100%;
                 height: 100%;
                 display: none;
-            }
-            #popup_overlay {
-                background-color: #000;
-                opacity: 0.6;
-            }
-            #creation_popup, #edition_popup {
-                border: none;
             }
             .mask {
                 position: absolute;
@@ -174,18 +159,73 @@
                 background-color: #ffffff;
                 opacity: 0.3;
             }
-        </style>
-        <script>
-            var dataSource = Webviews.data(),
-                maxId = 0,
-                dashboard,
-                formDomain = document.location.origin,
-                refresh = function() {
-                    dataSource.save(JSON.stringify(dashboard));
-                    dataSource.trigger();
-                };
 
-            $(function() {
+            .form {
+                width: 400px;
+                padding: 10px;
+                background-color: #eee;
+                border-radius: 4px;
+                font-family: sans-serif;
+                font-size: 13px;
+            }
+            .form input {
+                margin-bottom: 2px;
+                padding: 5px;
+                font: inherit;
+                border: 1px solid #ccc;
+            }
+            .form input[type=text] {
+                width: 100%
+            }
+            .form input:focus {
+                border-color: #66afe9;
+                outline: 0;
+                box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(102,175,233,.6);
+                transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
+            }
+            .form button {
+                font: inherit;
+                padding: 4px 10px;
+                border: none;
+                border-radius: 3px;
+                cursor: pointer;
+                background-color: #ccc;
+                border: 1px solid #ccc;
+                margin-right: 2px;
+            }
+            .form button:hover {
+                background-color: #ddd;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="dom"></div>
+        <div id="overlay"></div>
+        <div id="creation_form" class="form"></div>
+        <div id="edition_form" class="form"></div>
+        <script>
+            require.config({
+                paths: {
+                    sjcl: '//cdnjs.cloudflare.com/ajax/libs/sjcl/1.0.6/sjcl.min',
+                    jquery: '//cdnjs.cloudflare.com/ajax/libs/jquery/3.1.0/jquery.min',
+                    'ui-utils': 'https://cdn.rawgit.com/ehouais/js-ui-utils/v0.4.0/ui-utils',
+                    overlay: 'https://cdn.rawgit.com/ehouais/js-ui-utils/v0.4.0/overlay',
+                    form: 'https://rawgit.com/ehouais/js-ui-utils/dev/form'
+                },
+                shim: {
+                    sjcl: {exports: 'sjcl'}
+                }
+            });
+            require(['sjcl', 'overlay', 'form', 'jquery'], function(sjcl, Overlay, Form, $) {
+                var dataSource = Webviews.data(),
+                    maxId = 0,
+                    dashboard,
+                    formDomain = document.location.origin,
+                    refresh = function() {
+                        dataSource.save(JSON.stringify(dashboard));
+                        dataSource.trigger();
+                    };
+
                 var $db = $(document.body),
                     $dom = $('#dom'),
                     $getFrame = function(id) {
@@ -244,8 +284,64 @@
                 // Setup controllers
                 (function() {
                     var $overlay = $('#overlay'),
-                        $creation_popup = $('#creation_popup'),
-                        $edition_popup = $('#edition_popup'),
+                        $cform = $('#creation_form')[0],
+                        cform = Form($cform, {fields: {uri: 'URI'}, buttons: {cancel: 'Cancel'}}, {
+                            submit: function(data) {
+                                if (data.uri)
+                                    frame(200, 200, msg.data.uri);
+
+                                coverlay.hide();
+                            },
+                            cancel: function() {
+                                coverlay.hide();
+                            }
+                        }),
+                        coverlay = Overlay($cform, {'background-color': 'rgba(0,0,0,0.5)'}),
+                        $eform = $('#edition_form')[0],
+                        eform = Form($eform, {
+                            fields: {uri: 'URI'},
+                            buttons: {cancel: 'Cancel', refresh: 'Refresh', newpage: 'New page', delete: 'Delete'},
+                            hidden: {id: null}
+                        }, {
+                            cancel: function() {
+                                eoverlay.hide();
+                            },
+                            submit: function(data) {
+                                $getFrame(data.id).data('frame').uri = data.uri;
+                                refresh();
+                                eoverlay.hide();
+                            },
+                            refresh: function(data) {
+                                var iframe = $('iframe', $frame)[0],
+                                    $frame = $getFrame(data.id),
+                                    tokens = $frame.data('frame').uri.split('?');
+
+                                uri = tokens[0]+(tokens[1] ? '?'+tokens[1]+'&' : '?')+'random='+(new Date()).getTime();
+                                if (iframe) {
+                                    iframe.src = uri;
+                                } else {
+                                    $frame.css('background-image', 'url('+uri+')');
+                                }
+                                eoverlay.hide();
+                            },
+                            newpage: function(data) {
+                                window.open($getFrame(data.id).data('frame').uri);
+                                eoverlay.hide();
+                            },
+                            delete: function(data) {
+                                if (confirm('Are you sure ?')) {
+                                    $('.mask', $overlay).filter(function() {
+                                        return $(this).data('frame_id') == data.id;
+                                    }).remove();
+                                    dashboard.frames = dashboard.frames.filter(function(item) {
+                                        return item !== $getFrame(data.id).data('frame');
+                                    });
+                                    refresh();
+                                    eoverlay.hide();
+                                }
+                            }
+                        }),
+                        eoverlay = Overlay($eform, {'background-color': 'rgba(0,0,0,0.5)'}),
                         step = 4,
                         selected,
                         updateMask = function($mask) {
@@ -293,66 +389,15 @@
                         var $mask = $(e.target),
                             $frame = $getFrame($mask.data('frame_id')),
                             frame = $frame.data('frame');
-                            onMessage = function(e) {
-                                var event = e.originalEvent,
-                                    msg = event.data,
-                                    iframe,
-                                    tokens,
-                                    uri;
 
-                                if (event.origin == formDomain && msg.type != 'resize') {
-                                    if (msg.type == 'submit' && msg.data.uri != '') {
-                                        frame.uri = msg.data.uri;
-                                        refresh();
-                                    } else if (msg.type == 'refresh') {
-                                        iframe = $('iframe', $frame)[0];
-                                        tokens = frame.uri.split('?');
-                                        uri = tokens[0]+(tokens[1] ? '?'+tokens[1]+'&' : '?')+'random='+(new Date()).getTime();
-                                        if (iframe) {
-                                            iframe.src = uri;
-                                        } else {
-                                            $frame.css('background-image', 'url('+uri+')');
-                                        }
-                                    } else if (msg.type == 'newpage') {
-                                        window.open(frame.uri);
-                                    } else if (msg.type == 'delete' && confirm('Are you sure ?')) {
-                                        $mask.remove();
-                                        dashboard.frames = dashboard.frames.filter(function(item) {
-                                            return item !== frame;
-                                        });
-                                        refresh();
-                                    }
-                                    $edition_popup.hide();
-                                    $('#popup_overlay').hide();
-                                    $(window).off('message', onMessage);
-                                }
-                            };
-
-                        $edition_popup[0].contentWindow.postMessage({type: 'set', values: {uri: decodeURI(frame.uri)}}, formDomain);
-                        $edition_popup.show();
-                        $('#popup_overlay').show();
-                        $(window).on('message', onMessage);
+                        eform({id: frame.id, uri: decodeURI(frame.uri)});
+                        eoverlay.show();
                     });
 
                     // Creation popup using "Forms" webview
                     $dom.on('dblclick', function() {
-                        var onMessage = function(e) {
-                                var event = e.originalEvent,
-                                    msg = event.data;
-
-                                if (event.origin == formDomain && msg.type != 'resize') {
-                                    if (msg.type == 'submit' && msg.data.uri != '') {
-                                        frame(200, 200, msg.data.uri);
-                                    }
-                                    $creation_popup.hide();
-                                    $('#popup_overlay').hide();
-                                    $(window).off('message', onMessage);
-                                }
-                            };
-
-                        $creation_popup.show();
-                        $('#popup_overlay').show();
-                        $(window).on('message', onMessage);
+                        cform({});
+                        coverlay.show();
                     });
 
                     // Overlay installment for frames manipulation
@@ -421,12 +466,5 @@
                 })();
             });
         </script>
-    </head>
-    <body>
-        <div id="dom"></div>
-        <div id="overlay"></div>
-        <div id="popup_overlay"></div>
-        <iframe id="creation_popup" src="https://ehouais.net/webviews/forms/?datauri=data:text/plain,uri:URI%2c[cancel]:Cancel"></iframe>
-        <iframe id="edition_popup" src="https://ehouais.net/webviews/forms/?datauri=data:text/plain,uri:URI%2c[cancel]:Cancel%2c[refresh]:Refresh%2c[newpage]:New page%2c[delete]:Delete"></iframe>
     </body>
 </html>
