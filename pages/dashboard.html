@@ -206,14 +206,10 @@
         <script>
             require.config({
                 paths: {
-                    sjcl: '//cdnjs.cloudflare.com/ajax/libs/sjcl/1.0.6/sjcl.min',
                     jquery: '//cdnjs.cloudflare.com/ajax/libs/jquery/3.1.0/jquery.min',
-                    'ui-utils': 'https://cdn.rawgit.com/ehouais/js-ui-utils/v0.4.0/ui-utils',
-                    overlay: 'https://cdn.rawgit.com/ehouais/js-ui-utils/v0.4.0/overlay',
-                    form: 'https://rawgit.com/ehouais/js-ui-utils/dev/form'
-                },
-                shim: {
-                    sjcl: {exports: 'sjcl'}
+                    'ui-utils': 'https://cdn.rawgit.com/ehouais/js-ui-utils/v0.4.1/ui-utils',
+                    overlay: 'https://cdn.rawgit.com/ehouais/js-ui-utils/v0.4.1/overlay',
+                    form: 'https://cdn.rawgit.com/ehouais/js-ui-utils/v0.4.1/form'
                 }
             });
             require(['sjcl', 'overlay', 'form', 'jquery'], function(sjcl, Overlay, Form, $) {
