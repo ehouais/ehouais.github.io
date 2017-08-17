@@ -5,11 +5,11 @@
         <meta charset="utf-8" />
         <meta http-equiv="X-UA-Compatible" content="IE=Edge"/>
         <script src="//cdnjs.cloudflare.com/ajax/libs/require.js/2.3.2/require.min.js"></script>
-        <link href="//cdn.rawgit.com/ehouais/webviews/v0.3.0/table/style.css" rel="stylesheet">
+        <link href="//cdn.rawgit.com/ehouais/webviews/v0.5.0/table/style.css" rel="stylesheet">
     </head>
     <body>
         <script>
-            var config = {"baseUrl":"//cdn.rawgit.com/ehouais/webviews/v0.3.0/table","paths":{"http":"//cdn.rawgit.com/ehouais/js-data-libs/v0.5.0/http","text":"//cdnjs.cloudflare.com/ajax/libs/require-text/2.0.12/text.min","sjcl":"//cdnjs.cloudflare.com/ajax/libs/sjcl/1.0.6/sjcl.min","gist-fs":"//cdn.rawgit.com/ehouais/js-data-libs/v0.5.0/gist-fs","on-demand":"//cdn.rawgit.com/ehouais/js-data-libs/v0.5.0/on-demand","crypto":"//cdn.rawgit.com/ehouais/js-data-libs/v0.5.0/crypto","tablesort":"//cdnjs.cloudflare.com/ajax/libs/tablesort/5.0.0/tablesort.min"},"shim":{"sjcl":{"exports":"sjcl"},"tablesort":{"exports":"Tablesort"}}};
+            var config = {"baseUrl":"//cdn.rawgit.com/ehouais/webviews/v0.5.0/table","paths":{"http":"//cdn.rawgit.com/ehouais/js-data-libs/v0.5.0/http","text":"//cdnjs.cloudflare.com/ajax/libs/require-text/2.0.12/text.min","sjcl":"//cdnjs.cloudflare.com/ajax/libs/sjcl/1.0.6/sjcl.min","gist-fs":"//cdn.rawgit.com/ehouais/js-data-libs/v0.5.0/gist-fs","on-demand":"//cdn.rawgit.com/ehouais/js-data-libs/v0.5.0/on-demand","crypto":"//cdn.rawgit.com/ehouais/js-data-libs/v0.5.0/crypto","tablesort":"//cdnjs.cloudflare.com/ajax/libs/tablesort/5.0.0/tablesort.min"},"shim":{"sjcl":{"exports":"sjcl"},"tablesort":{"exports":"Tablesort"}}};
             config.config = {text: {useXhr: function(url, protocol, hostname, port) {
                 return true; // force use of CORS for text dependencies
             }}};
