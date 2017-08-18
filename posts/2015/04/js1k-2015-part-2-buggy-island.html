@@ -1,12 +1,8 @@
 <html>
     <head>
         <style>
-            @font-face {
-                font-family: 'OpenSans';
-                src: url('/assets/OpenSans-Regular.ttf');
-            }
             body {
-                font-family: OpenSans;
+                font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;;
                 font-size: 14px;
                 margin: 0;
                 padding: 0;
@@ -14,13 +10,13 @@
             a {
                 text-decoration: none;
             }
-            a:hover {
+            a:hover, a:visited {
                 color: #59F;
             }
             #nav {
                 position: fixed;
-                padding: 0 10px;
-                width: 210px;
+                padding: 0 20px;
+                width: 200px;
                 height: 100%;
                 float: left;
                 background-color: #eee;
@@ -33,7 +29,7 @@
                 margin-top: 0;
             }
             #post {
-                margin-left: 230px;
+                margin-left: 240px;
                 padding: 40px;
                 width: 700px;
             }
@@ -48,7 +44,7 @@
                 margin: 5px 0 15px;
             }
             #post .pubdate, #post .lastmodifdate {
-                font-size: 10px;
+                font-size: 11px;
             }
             #post .lastmodifdate {
                 margin-bottom: 50px;
@@ -62,7 +58,7 @@
             #post img {
                 height: 100px;
                 position: absolute;
-                left: 990px;
+                left: 1000px;
             }
             #post p {
                 text-align: justify;
@@ -101,11 +97,11 @@
 <div class="lastmodifdate">2016-07-06</div>
 
 <p><a class="illustration" href="//en.wikipedia.org/wiki/Tessellation">
-    <img src="/cdn/img/tessellation.jpg" title="Tessellation"/>
+    <img src="/assets/img/tessellation.jpg" title="Tessellation"/>
 </a></p>
 <p>In <a href="/2015/03/js1k-2015-part-1-introduction" title="js1k 2015 (part 1) : introduction">the previous post</a>, I explained that my 2014 and 2015 demos were exploring the same rendering method, which basically is a simple combination of heightmap, vertical <a href="//en.wikipedia.org/wiki/Voxel" title="voxel">voxels</a>, and standard perspective calculations. The way you perform heightmap <a href="//en.wikipedia.org/wiki/Tessellation" title="Tessellation">tessellation</a> (chunking the surface into contiguous small parts) can bring bonus features, such as simple z-index compliance if you can easily bind traversal order and distance to viewer, and variable LOD if you can handle multiple tessellations with different degree of precision. One elegant (and compact) way to achieve both these goals is to use recursive tessellation, in which the surface is recursively divided into smaller parts, using a unique geometric formula.</p>
 <p><a class="illustration" href="//en.wikipedia.org/wiki/Gosper_curve#Properties">
-    <img src="/cdn/img/gosper-island.png" title="Gosper island"/>
+    <img src="/assets/img/gosper-island.png" title="Gosper island"/>
 </a></p>
 <p>When preparing my 2014 entry, I knew the canonical recursive tessellation scheme used in computer graphics was the well-known <a href="//en.wikipedia.org/wiki/Quadtree" title="Quadtree">quadtree</a>, but I wanted something more exotic for my use. What if each node didn&#39;t transform into 4 subnodes, but 7, one at the center, and the 6 others spread evenly around it ? Sure the surface of the juxtaposed subnodes isn&#39;t the same as the parent&#39;s (hexagons are not <a href="//en.wikipedia.org/wiki/Rep-tile" title="Rep-tile">rep-tiles</a>), but if you find <a href="//ecademy.agnesscott.edu/~lriddle/ifs/ksnow/flowsnake.htm" title="A bit of maths...">the correct geometric transformation</a>, all the nodes at a particular depth are perfectly contiguous. Turns out the resulting shape is well known to mathematicians under the name of &quot;<a href="//en.wikipedia.org/wiki/Gosper_curve#Properties" title="Gosper island">Gosper island</a>&quot;. This island is fractal by construction, which means that, even if its surface is finite, you&#39;d better have good shoes and some <a href="//en.wikipedia.org/wiki/List_of_Middle-earth_food_and_drink#Lembas" title="Lembas">lembas</a> if you intend to walk the coastal path (math nerd joke).</p>
 <p>The Gosper island tessellation scheme had a number of benefits for my use:</p>
@@ -121,7 +117,7 @@
 <li>The generation and traversal of 7 subnodes are a bit more complex to code and compress than their quadtree equivalent</li>
 </ul>
 <p><a class="illustration" href="//js1k.com/1966">
-    <img src="/cdn/img/buggy-island.png" title="Buggy island"/>
+    <img src="/assets/img/buggy-island.png" title="Buggy island"/>
 </a></p>
 <p>Given the inherent problems and the lack of time, I struggled to put up a decent entry, but finally released &quot;<a href="//js1k.com/1966" title="Buggy island">Buggy island</a>&quot; with the following additions:</p>
 <ul>

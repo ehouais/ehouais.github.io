@@ -1,12 +1,8 @@
 <html>
     <head>
         <style>
-            @font-face {
-                font-family: 'OpenSans';
-                src: url('/assets/OpenSans-Regular.ttf');
-            }
             body {
-                font-family: OpenSans;
+                font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;;
                 font-size: 14px;
                 margin: 0;
                 padding: 0;
@@ -14,13 +10,13 @@
             a {
                 text-decoration: none;
             }
-            a:hover {
+            a:hover, a:visited {
                 color: #59F;
             }
             #nav {
                 position: fixed;
-                padding: 0 10px;
-                width: 210px;
+                padding: 0 20px;
+                width: 200px;
                 height: 100%;
                 float: left;
                 background-color: #eee;
@@ -33,7 +29,7 @@
                 margin-top: 0;
             }
             #post {
-                margin-left: 230px;
+                margin-left: 240px;
                 padding: 40px;
                 width: 700px;
             }
@@ -48,7 +44,7 @@
                 margin: 5px 0 15px;
             }
             #post .pubdate, #post .lastmodifdate {
-                font-size: 10px;
+                font-size: 11px;
             }
             #post .lastmodifdate {
                 margin-bottom: 50px;
@@ -62,7 +58,7 @@
             #post img {
                 height: 100px;
                 position: absolute;
-                left: 990px;
+                left: 1000px;
             }
             #post p {
                 text-align: justify;
@@ -102,19 +98,19 @@
 
 <p>We&#39;ve seen in <a href="/2013/04/js1k-2013-part-2-tunnel-generation" title="Tunnel generation">the previous post</a> that each iteration began by generating a new trunk of tunnel, so that there are always 1400 tunnel positions ahead available to render. The second phase of the algorithm is to render the elements that are present in some of these positions. One of the advantages of this pseudo 3D rendering is that processing layers from the farthest to the nearest solves the costly z-index problem: nearest elements automatically hide the distant ones. For each position containing elements to render, the algorithm applies simple perspective calculus using layer&#39;s horizontal and vertical shift (x and y at the layer&#39;s position), distance to the cart, and orientation of the cart (x&#39; and y&#39; at the cart&#39;s position). The simplicity of the rendering method allows using only 2 canvas primitives: fillRect and fillStyle, but still the latter is costly and is only used when the fill color really changes.</p>
 <p><a class="illustration" href="">
-    <img src="/cdn/img/strange-crystals-1.png" title="Light coming from the cart"/>
+    <img src="/assets/img/strange-crystals-1.png" title="Light coming from the cart"/>
 </a></p>
 <p>When I began working on colors and light, I soon decided not to use colors but instead focus on light. Using a simplified hsl(0,0%,x%) syntax was saving bytes, and I was convinced that in this context, contrast was much more significant than color. I tested different lighting algorithms, and naturally the one where the light came from the cart seemed <a href="//www.youtube.com/watch?v=vx2o3AhLHrA" title="Minecart ride">the most realistic</a> to me. But the problem was that the nearest layers were overexposed and appeared in all their ugliness: the rendering technique was only acceptable if its consequences on nearest layers were softened by darkness and speed.</p>
 <p><a class="illustration" href="">
-    <img src="/cdn/img/strange-crystals-2.png" title="Light coming from the background"/>
+    <img src="/assets/img/strange-crystals-2.png" title="Light coming from the background"/>
 </a></p>
 <p>So I inversed the formula, and it created a light coming from the end of the tunnel. It wasn&#39;t realistic at all (unless you&#39;re chasing another cart which is carrying a lamp), but it was nice to watch, simple to implement, and created a depth where closer elements were darker and contrasted nicely in front of brighter distant elements. To shorten color values, I encoded lightness on 3 bits, and used a fourth bit to differentiate blocks emitting light from those only reflecting it.</p>
 <p><a class="illustration" href="">
-    <img src="/cdn/img/strange-crystals-3.png" title="Ambient and lightbulbs"/>
+    <img src="/assets/img/strange-crystals-3.png" title="Ambient and lightbulbs"/>
 </a></p>
 <p>When I abandoned the particle engine, I got a comfortable amount of bytes back, so I used them to enrich the lighting environment by adding bulbs to create local spots of light. This implied to generate two specific blocks (the bulb and the cord) twice in each flat section (at positions 200 and 600), and to provide to the rendering algorithm the amount of additional light for each position, computed at generation time by applying the swiss-knife bell function exp(-x<sup>2</sup>) to the distance to the nearest light. I added a fifth bit to lightness encoding to indicate blocks that should reflect light but that don&#39;t in certain cases (light from bulbs don&#39;t reflect on cave walls).</p>
 <p><a class="illustration" href="">
-    <img src="/cdn/img/mineshaft.jpg" title="Real mineshaft"/>
+    <img src="/assets/img/mineshaft.jpg" title="Real mineshaft"/>
 </a></p>
 <p>The result was really worth the bytes, and at last the rendering seemed pretty realistic to me. But now that the torches were gone, it lacked a bit of fancy in these mines, so I had the idea of making some lights flicker. It proved a bit costly, but in the end, I liked this so much that I didn&#39;t want to rollback. Technically, It needed two more values in the parameters generated at each position, one acting as an indicator being null only when changing of &quot;light zone&quot;, the other indicating whether the bulb is defective, in this case triggering at each iteration a random draw deciding whether the light is on or off. When looping through the light zones, the rendering algorithm uses these indicators to modulate the light provided by the zone bulb.</p>
 <p>In <a href="/2013/05/js1k-2013-part-4-conclusion" title="Conclusion">the next and final part</a> I will talk about the &quot;strange crystals&quot;, the <a href="//js1k.com/1461" title="Furbee in the mines">Román Cortés challenge</a>, and will wrap it all up.</p>

@@ -1,12 +1,8 @@
 <html>
     <head>
         <style>
-            @font-face {
-                font-family: 'OpenSans';
-                src: url('/assets/OpenSans-Regular.ttf');
-            }
             body {
-                font-family: OpenSans;
+                font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;;
                 font-size: 14px;
                 margin: 0;
                 padding: 0;
@@ -14,13 +10,13 @@
             a {
                 text-decoration: none;
             }
-            a:hover {
+            a:hover, a:visited {
                 color: #59F;
             }
             #nav {
                 position: fixed;
-                padding: 0 10px;
-                width: 210px;
+                padding: 0 20px;
+                width: 200px;
                 height: 100%;
                 float: left;
                 background-color: #eee;
@@ -33,7 +29,7 @@
                 margin-top: 0;
             }
             #post {
-                margin-left: 230px;
+                margin-left: 240px;
                 padding: 40px;
                 width: 700px;
             }
@@ -48,7 +44,7 @@
                 margin: 5px 0 15px;
             }
             #post .pubdate, #post .lastmodifdate {
-                font-size: 10px;
+                font-size: 11px;
             }
             #post .lastmodifdate {
                 margin-bottom: 50px;
@@ -62,7 +58,7 @@
             #post img {
                 height: 100px;
                 position: absolute;
-                left: 990px;
+                left: 1000px;
             }
             #post p {
                 text-align: justify;
@@ -101,19 +97,19 @@
 <div class="lastmodifdate">2016-07-06</div>
 
 <p><a class="illustration" href="//js1k.com/1966">
-    <img src="/cdn/img/buggy-island.png" title="Buggy island"/>
+    <img src="/assets/img/buggy-island.png" title="Buggy island"/>
 </a></p>
 <p>Though the final version of <a href="//js1k.com/1966" title="Buggy Island">my js1k 2014 entry</a> wasn&#39;t a potential winner with its visual glitches and poor frame rate, I had put some hard work into it, and had a lot of (mainly mathematical) fun exploring recursive data structures and optimizing graph traversal algorithms. I felt this research area was a great mathematical and artistical playground, especially in the context of constrained creative coding such as js1k, so I decided to continue on the same path to publish <a href="//js1k.com/2015-hypetrain/demo/2324" title="Islands">something really satisfactory</a> for the 2015 edition.</p>
 <p><a class="illustration" href="//js1k.com/2013-spring/demo/1555">
-    <img src="/cdn/img/strange-crystals-6.png" title="Strange crystals II"/>
+    <img src="/assets/img/strange-crystals-6.png" title="Strange crystals II"/>
 </a></p>
 <p><a href="//js1k.com/2013-spring/demo/1555" title="Strange crystals II">My 2013 entry</a> proved that a few thousands well used coloured rectangles can bring a satisfactory pseudo-realistic visual experience. Canvas&#39; <code>fillRect</code> is fast enough for the job, as long as it is backed by a powerful engine to keep the rendering loop is as simple as possible. The &quot;Strange Crystals&quot; demo used this technique in conjunction with old-school 2.5D techniques to simulate a first-person mine cart ride. The data structure was directly bound to the z-index and made the rendering loop dead simple, letting room to enhance the visual evocation with stalactites, lightbulbs and other goodies.</p>
 <p><a class="illustration" href="//en.wikipedia.org/wiki/Pin_Art">
-    <img src="/cdn/img/pinart.jpg" title="Pin art"/>
+    <img src="/assets/img/pinart.jpg" title="Pin art"/>
 </a></p>
 <p>In 2014, I decided to go 3D by adapting the rectangle-based rendering technique to a heightmap. The idea was, given a terrain (altitude = f(x,y)), to tile the surface of the terrain, give each tile the height corresponding to the terrain&#39;s altitude at the center of the tile, and render the tiles with vertical rectangles to produce an approximate view of the terrain. When the tiles&#39; width become smaller, the rendering gets more accurate and hopefully realistic. <a href="//en.wikipedia.org/wiki/Pin_Art" title="Pin Art">Pin art</a> frames are a good real-world equivalent to this rendering technique.</p>
 <p><a class="illustration" href="//en.wikipedia.org/wiki/3D_projection">
-    <img src="/cdn/img/projection.png" title="3D projection"/>
+    <img src="/assets/img/projection.png" title="3D projection"/>
 </a></p>
 <p>The 3D rendering process must be able to perform standard tasks:</p>
 <ul>
@@ -122,7 +118,7 @@
 <li>Z-index: the distance between the tile and the viewer must be taken into account so that <a href="//en.wikipedia.org/wiki/Hidden_surface_determination" title="Hidden surface determination">distant tiles do not overlap closer tiles</a>.</li>
 </ul>
 <p><a class="illustration" href="//js1k.com/1966">
-    <img src="/cdn/img/bonus.png" title="Bonus"/>
+    <img src="/assets/img/bonus.png" title="Bonus"/>
 </a></p>
 <p>Bonus features include:</p>
 <ul>
