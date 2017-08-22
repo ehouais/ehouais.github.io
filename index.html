@@ -1,0 +1,120 @@
+<html>
+    <head>
+        <style>
+            body {
+                font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;;
+                font-size: 14px;
+                margin: 0;
+                padding: 0;
+            }
+            a {
+                text-decoration: none;
+            }
+            a:hover, a:visited {
+                color: #59F;
+            }
+            #nav {
+                position: fixed;
+                padding: 0 20px;
+                width: 200px;
+                height: 100%;
+                float: left;
+                background-color: #eee;
+                font-size: 13px;
+            }
+            #nav p {
+                margin-bottom: 0;
+            }
+            #nav ol {
+                margin-top: 0;
+            }
+            #post {
+                margin-left: 240px;
+                padding: 50px 100px 100px 100px;
+                width: 500px;
+            }
+            #post .series, #post .title, #post .pubdate, #post .lastmodifdate {
+                text-align: center;
+            }
+            #post .series {
+                font-size: 18px;
+            }
+            #post .title {
+                font-size: 32px;
+                margin: 5px 0 10px;
+            }
+            #post .pubdate, #post .lastmodifdate {
+                font-size: 11px;
+            }
+            #post .lastmodifdate {
+                margin-bottom: 50px;
+            }
+            #post .pubdate:before {
+                content: 'published: ';
+            }
+            #post .lastmodifdate:before {
+                content: 'modified: ';
+            }
+            #post img {
+                width: 100px;
+                position: absolute;
+                left: 900px;
+            }
+            #post p {
+                text-align: justify;
+                text-indent: 20px;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="nav">
+<p><a href="/">Home</a></p>
+<p>JS1k 2012</p>
+<ol>
+<li><a href="/2012/03/js1k-2012-part-1-introduction">Introduction</a></li>
+<li><a href="/2012/03/js1k-2012-part-2-terrain-generation">Terrain generation</a></li>
+<li><a href="/2012/03/js1k-2012-part-3-time-colours-and-light">Time, colours &amp; light</a></li>
+<li><a href="/2012/03/js1k-2012-part-4-optimization-and-conclusion">Optimization &amp; conclusion</a></li>
+</ol>
+<p>JS1k 2013</p>
+<ol>
+<li><a href="/2013/04/js1k-2013-part-1-introduction">Introduction</a></li>
+<li><a href="/2013/04/js1k-2013-part-2-tunnel-generation">Tunnel generation</a></li>
+<li><a href="/2013/04/js1k-2013-part-3-rendering">Rendering</a></li>
+<li><a href="/2013/05/js1k-2013-part-4-conclusion">Conclusion</a></li>
+</ol>
+<p>JS1k 2015</p>
+<ol>
+<li><a href="/2015/03/js1k-2015-part-1-introduction">Introduction</a></li>
+<li><a href="/2015/04/js1k-2015-part-2-buggy-island">Buggy island</a></li>
+</ol>
+<p>Standalone JS1k demos</p>
+<ol>
+<li><a href="/js1k/2012-Mine[love]craft">Mine[love]craft</a></li>
+<li><a href="/js1k/2013-Strange_crystals_II">Strange crystals II</a></li>
+<li><a href="/js1k/2014-Buggy_island">Buggy island</a></li>
+<li><a href="/js1k/2015-Islands">Islands</a></li>
+<li><a href="/js1k/2016-Gliese_581_c">Gliese 581 c</a></li>
+</ol>
+        </div>
+        <div id="post">
+<p><a class="illustration" href="//twitter.com/ehouais">
+    <img src="data:image/jpeg;base64,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" title="Ceci n'est pas @ehouais"/>
+</a></p>
+<p>I&#39;m <a href="//twitter.com/ehouais">Philippe Deschaseaux</a>, a <del>senior</del> <del>veteran</del> dev enthusiast from Brittany, France, with interests in algorithms, web graphics, REST architecture, and advanced programming concepts in general.</p>
+<h2 id="js1k-and-2-5d-graphics-experiments">JS1k and 2.5D graphics experiments</h2>
+<p>Where constrained coding meets procedural generation and various pseudo-3D rendering techniques.</p>
+<ul>
+<li><a href="//js1k.com/" title="js1k.com">js1k.com</a></li>
+<li><a href="//github.com/ehouais/js1k" title="my JS1k repo on github">my JS1k repo on github</a></li>
+<li>Related posts for 2012 (<a href="/2012/03/js1k-2012-part-1-introduction">1</a>-<a href="/2012/03/js1k-2012-part-2-terrain-generation">2</a>-<a href="/2012/03/js1k-2012-part-3-time-colours-and-light">3</a>-<a href="/2012/03/js1k-2012-part-4-optimization-and-conclusion">4</a>), 2013 (<a href="/2013/04/js1k-2013-part-1-introduction">1</a>-<a href="/2013/04/js1k-2013-part-2-tunnel-generation">2</a>-<a href="/2013/04/js1k-2013-part-3-rendering">3</a>-<a href="/2013/05/js1k-2013-part-4-conclusion">4</a>), 2015 (<a href="/2015/03/js1k-2015-part-1-introduction">1</a>-<a href="/2015/04/js1k-2015-part-2-buggy-island">2</a>)</li>
+</ul>
+<h2 id="unhosted-data-visualizations">Unhosted data visualizations</h2>
+<p>Where simple application-logic/data-access decoupling meets embeddable data visualization components and Domain-Specific-Languages.</p>
+<h2 id="concepts-and-tools-for-single-page-applications">Concepts and tools for single page applications</h2>
+<p>SPAs + REST resources are fun to combine, but as the application logic grows, you need dedicated programming concepts to keep your code base under control.</p>
+<h2 id="php-servers">PHP servers</h2>
+<p>A base static class for REST-oriented PHP servers, providing CORS/auth/routing/errors/... utilitary methods. A simple key/value server is provided as an example of a derived class. <a href="//github.com/ehouais/PHP-servers" title="github">project on github</a></p>
+        </div>
+    </body>
+</html>

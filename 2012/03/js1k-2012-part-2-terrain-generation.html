@@ -1,0 +1,120 @@
+<html>
+    <head>
+        <style>
+            body {
+                font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;;
+                font-size: 14px;
+                margin: 0;
+                padding: 0;
+            }
+            a {
+                text-decoration: none;
+            }
+            a:hover, a:visited {
+                color: #59F;
+            }
+            #nav {
+                position: fixed;
+                padding: 0 20px;
+                width: 200px;
+                height: 100%;
+                float: left;
+                background-color: #eee;
+                font-size: 13px;
+            }
+            #nav p {
+                margin-bottom: 0;
+            }
+            #nav ol {
+                margin-top: 0;
+            }
+            #post {
+                margin-left: 240px;
+                padding: 50px 100px 100px 100px;
+                width: 500px;
+            }
+            #post .series, #post .title, #post .pubdate, #post .lastmodifdate {
+                text-align: center;
+            }
+            #post .series {
+                font-size: 18px;
+            }
+            #post .title {
+                font-size: 32px;
+                margin: 5px 0 10px;
+            }
+            #post .pubdate, #post .lastmodifdate {
+                font-size: 11px;
+            }
+            #post .lastmodifdate {
+                margin-bottom: 50px;
+            }
+            #post .pubdate:before {
+                content: 'published: ';
+            }
+            #post .lastmodifdate:before {
+                content: 'modified: ';
+            }
+            #post img {
+                width: 100px;
+                position: absolute;
+                left: 900px;
+            }
+            #post p {
+                text-align: justify;
+                text-indent: 20px;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="nav">
+<p><a href="/">Home</a></p>
+<p>JS1k 2012</p>
+<ol>
+<li><a href="/2012/03/js1k-2012-part-1-introduction">Introduction</a></li>
+<li><a href="/2012/03/js1k-2012-part-2-terrain-generation">Terrain generation</a></li>
+<li><a href="/2012/03/js1k-2012-part-3-time-colours-and-light">Time, colours &amp; light</a></li>
+<li><a href="/2012/03/js1k-2012-part-4-optimization-and-conclusion">Optimization &amp; conclusion</a></li>
+</ol>
+<p>JS1k 2013</p>
+<ol>
+<li><a href="/2013/04/js1k-2013-part-1-introduction">Introduction</a></li>
+<li><a href="/2013/04/js1k-2013-part-2-tunnel-generation">Tunnel generation</a></li>
+<li><a href="/2013/04/js1k-2013-part-3-rendering">Rendering</a></li>
+<li><a href="/2013/05/js1k-2013-part-4-conclusion">Conclusion</a></li>
+</ol>
+<p>JS1k 2015</p>
+<ol>
+<li><a href="/2015/03/js1k-2015-part-1-introduction">Introduction</a></li>
+<li><a href="/2015/04/js1k-2015-part-2-buggy-island">Buggy island</a></li>
+</ol>
+<p>Standalone JS1k demos</p>
+<ol>
+<li><a href="/js1k/2012-Mine[love]craft">Mine[love]craft</a></li>
+<li><a href="/js1k/2013-Strange_crystals_II">Strange crystals II</a></li>
+<li><a href="/js1k/2014-Buggy_island">Buggy island</a></li>
+<li><a href="/js1k/2015-Islands">Islands</a></li>
+<li><a href="/js1k/2016-Gliese_581_c">Gliese 581 c</a></li>
+</ol>
+        </div>
+        <div id="post">
+<div class="series">JS1k 2012</div>
+<div class="title">Part 2 : terrain generation</div>
+<div class="pubdate">2012-03-26</div>
+<div class="lastmodifdate">2016-07-06</div>
+
+<p><a class="illustration" href="//en.wikipedia.org/wiki/Normal_distribution">
+    <img src="/assets/img/normal-distribution.png" title="Bell-shaped function" />
+</a></p>
+<p>My <a href="//js1k.com/1282" title="Mine[love]craft">1K Minecraft</a> needed a good terrain generator, so I searched for javascript implementations of random noise generators. There are <a href="//gist.github.com/304522" title="Perlin noise generators in javascript">pretty cool things</a> out there but it was clear I would have to lower my mathematical ambitions to fit the algorithm in less than 1K of javascript. So I kept randomly dumping  <a href="//en.wikipedia.org/wiki/Normal_distribution" title="Normal distribution">bell-shaped functions</a> on a flat base, which gives pretty satisfying results. I tried various functions (exp(-x²), 1/(1+x²), cos((π/2) * x²/(1/4+x²)), etc.). I finally used the exponential, as it seemed a good compromise between simplicity and speed.</p>
+<p><a class="illustration" href="//en.wikipedia.org/wiki/Simulacron-3">
+    <img src="/assets/img/13th-floor.jpg" title="Douglas Hall reaches the limits of his virtual world in Daniel F. Galouye's Simulacron-3 Hollywood adaptation (The Thirteenth floor)" />
+</a></p>
+<p>So I had my N*N table of altitudes. Negative figures represent different depth of water, 0 is the sea level (sand), and positive are emerged lands, with snow appearing above a certain threshold. To compensate an inherent problem of visibility in the isometric projection, I gave the possibility to rotate the view by +90° steps, thus facing alternatively N-E, W-N, S-W, E-S, and back to N-E. And to avoid the disturbing <a href="//en.wikipedia.org/wiki/Simulacron-3" title="Simulacron-3">&quot;world&#39;s end effect&quot;</a>, I made the terrain &quot;infinite&quot; by cycling it in all directions, which may be considered superfluous since memory is not the real problem here. When digging, the altitude value for the current cell is decreased.</p>
+<p><a class="illustration" href="demo">
+    <img src="/assets/img/temple-of-love.png" title="&quot;Temple of Love on mount Eldritch&quot;: a snapshot showcasing the demo's day/night cycling and building features" />
+</a></p>
+<p>The possibilty to add blocks was a non-negociable feature. So I turned each cell of the table into an array, the first value being the altitude, and the others representing a stack of the incremental altitudes of blocks put on this location. So pushing 1 onto this stack adds a block, popping the stack removes the top block, and incrementing the top value lifts the top block, which allows to have more complex buildings than just piles of stone blocks.</p>
+        </div>
+    </body>
+</html>

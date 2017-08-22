@@ -1,0 +1,126 @@
+<html>
+    <head>
+        <style>
+            body {
+                font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;;
+                font-size: 14px;
+                margin: 0;
+                padding: 0;
+            }
+            a {
+                text-decoration: none;
+            }
+            a:hover, a:visited {
+                color: #59F;
+            }
+            #nav {
+                position: fixed;
+                padding: 0 20px;
+                width: 200px;
+                height: 100%;
+                float: left;
+                background-color: #eee;
+                font-size: 13px;
+            }
+            #nav p {
+                margin-bottom: 0;
+            }
+            #nav ol {
+                margin-top: 0;
+            }
+            #post {
+                margin-left: 240px;
+                padding: 50px 100px 100px 100px;
+                width: 500px;
+            }
+            #post .series, #post .title, #post .pubdate, #post .lastmodifdate {
+                text-align: center;
+            }
+            #post .series {
+                font-size: 18px;
+            }
+            #post .title {
+                font-size: 32px;
+                margin: 5px 0 10px;
+            }
+            #post .pubdate, #post .lastmodifdate {
+                font-size: 11px;
+            }
+            #post .lastmodifdate {
+                margin-bottom: 50px;
+            }
+            #post .pubdate:before {
+                content: 'published: ';
+            }
+            #post .lastmodifdate:before {
+                content: 'modified: ';
+            }
+            #post img {
+                width: 100px;
+                position: absolute;
+                left: 900px;
+            }
+            #post p {
+                text-align: justify;
+                text-indent: 20px;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="nav">
+<p><a href="/">Home</a></p>
+<p>JS1k 2012</p>
+<ol>
+<li><a href="/2012/03/js1k-2012-part-1-introduction">Introduction</a></li>
+<li><a href="/2012/03/js1k-2012-part-2-terrain-generation">Terrain generation</a></li>
+<li><a href="/2012/03/js1k-2012-part-3-time-colours-and-light">Time, colours &amp; light</a></li>
+<li><a href="/2012/03/js1k-2012-part-4-optimization-and-conclusion">Optimization &amp; conclusion</a></li>
+</ol>
+<p>JS1k 2013</p>
+<ol>
+<li><a href="/2013/04/js1k-2013-part-1-introduction">Introduction</a></li>
+<li><a href="/2013/04/js1k-2013-part-2-tunnel-generation">Tunnel generation</a></li>
+<li><a href="/2013/04/js1k-2013-part-3-rendering">Rendering</a></li>
+<li><a href="/2013/05/js1k-2013-part-4-conclusion">Conclusion</a></li>
+</ol>
+<p>JS1k 2015</p>
+<ol>
+<li><a href="/2015/03/js1k-2015-part-1-introduction">Introduction</a></li>
+<li><a href="/2015/04/js1k-2015-part-2-buggy-island">Buggy island</a></li>
+</ol>
+<p>Standalone JS1k demos</p>
+<ol>
+<li><a href="/js1k/2012-Mine[love]craft">Mine[love]craft</a></li>
+<li><a href="/js1k/2013-Strange_crystals_II">Strange crystals II</a></li>
+<li><a href="/js1k/2014-Buggy_island">Buggy island</a></li>
+<li><a href="/js1k/2015-Islands">Islands</a></li>
+<li><a href="/js1k/2016-Gliese_581_c">Gliese 581 c</a></li>
+</ol>
+        </div>
+        <div id="post">
+<div class="series">JS1k 2012</div>
+<div class="title">Part 4 : optimization &amp; conclusion</div>
+<div class="pubdate">2012-03-29</div>
+<div class="lastmodifdate">2016-07-06</div>
+
+<p><a class="illustration" href="//www.imdb.com/title/tt0088286">
+    <img src="/assets/img/top-secret.png" title="&quot;Compressed&quot; Omar Sharif in &quot;Top Secret!&quot;"/>
+</a></p>
+<p>At first, I tried to optimize code while adding functionalities to it. There were all kind of tricks and the code soon became a real mess, responding quasi-chaotically to modifications. I had started exploring &quot;JS crushing&quot;, converting sequences of code into strings, then applying <a href="//en.wikipedia.org/wiki/Data_compression#Lossless" title="Lossless compression">entropic compression</a> to them, before expanding and evaluating them at run-time. But many had done this before, and I soon used <a href="//twitter.com/aivopaas" title="Aivo Paas">Aivo Paas</a>&#39; crusher, which happens to be <a href="//js1k.com/1127" title="Aivo Paas&#39; JS crusher">another entry</a> to the 2012 JS1k. I didn&#39;t have time to benchmark the crushers, so I stuck to this one, and I&#39;m pretty sure it does a very good job. I realized almost too late that such crushers are not harmless if you apply them directly on your source code: this produced numerous syntax errors 1h before deadline (due to not-so-optional semicolons), and a stressful debugging frenzy.</p>
+<p><a class="illustration" href="//knowyourmeme.com/memes/wat">
+    <img src="/assets/img/wat.jpg" title="The WAT meme illustrated by Florentijn Hofman's giant Rubber Duck" />
+</a></p>
+<p>So JS crushing allowed me to work on readable code, but I still had to work on 3 different kinds of optimization:</p>
+<ul>
+<li><strong>Soul</strong>: find the optimal paradigms for your own little universe. This requires imagination, rigorous maths, attention to details, sometimes a sharp sense of humour (a mix which can be <a href="//www.xkcd.com" title="XKCD">so f*ing close to genious</a>), and in my opinion represents the real value of it all.</li>
+<li><strong>Language</strong>: exploit javascript specificities (not to say <a href="//www.destroyallsoftware.com/talks/wat" title="WAT">oddities</a>), by using implicit casting, optional arguments, global variables, <del><code>with</code> statement</del> (nope: it&#39;s incredibly slow, it&#39;s redundant with entropic optimization, and above all it&#39;s <a href="//www.imdb.com/title/tt0087332/quotes?qt0475898" title="Total protonic reversal">bad</a>), bitwise operators, etc.</li>
+<li><strong>Entropy</strong>: &quot;please the crusher&quot; in every possible way (and this includes very nasty ways), by refactoring code to induce redundant patterns (rename variables, add unused arguments to duplicate function signature, etc.). This sometimes paradoxically requires you to bloat your code.</li>
+</ul>
+<p><a class="illustration" href="/2013/04/js1k-2013-part-1-introduction">
+    <img src="/assets/img/see-you-in-2013.png" title="See you in JS1k 2013 !" />
+</a></p>
+<p>I realize there are many things I didn&#39;t explain (ephemeris calculation, lightness management, isometric projection specificities, hue optimization, etc.). Let&#39;s say we&#39;ll keep some mystery here, but if you want to know, just ask. And surely there are also many ways to improve the demo, while staying below the 1K limit. And may be I should start thinking about my entry for next year&#39;s JS1k (what about Angry Birds 1K ?).</p>
+<p>But for now it&#39;s spring in the northern hemisphere, and I must cultivate my garden.</p>
+        </div>
+    </body>
+</html>
