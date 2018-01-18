@@ -5,8 +5,8 @@
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=Edge"/>
         <script src="//cdnjs.cloudflare.com/ajax/libs/require.js/2.3.3/require.min.js"></script>
-        <link href="//cdn.rawgit.com/ehouais/charts/v0.3.1/pie/../condensed-font.css" rel="stylesheet">
-        <link href="//cdn.rawgit.com/ehouais/charts/v0.3.1/pie/default.css" rel="stylesheet">
+        <link href="/assets/charts/v0.3.2/condensed-font.css" rel="stylesheet">
+        <link href="/assets/charts/v0.3.2/pie/default.css" rel="stylesheet">
         <link href="README.md" rel="doc">
         <style>
             html, body {
@@ -19,7 +19,7 @@
     </head>
     <body>
         <script>
-            var config = {"baseUrl":"//cdn.rawgit.com/ehouais/charts/v0.3.1/pie","paths":{"http":"//cdn.rawgit.com/ehouais/js-data-libs/v0.5.1/http","text":"//cdnjs.cloudflare.com/ajax/libs/require-text/2.0.12/text.min","gist-fs":"//cdn.rawgit.com/ehouais/js-data-libs/v0.5.1/gist-fs","on-demand":"//cdn.rawgit.com/ehouais/js-data-libs/v0.5.1/on-demand","crypto":"//cdn.rawgit.com/ehouais/js-data-libs/v0.5.1/crypto","sjcl":"//cdnjs.cloudflare.com/ajax/libs/sjcl/1.0.6/sjcl.min","d3":"//cdnjs.cloudflare.com/ajax/libs/d3/4.2.8/d3.min","twopassresize":"//cdn.rawgit.com/ehouais/charts/v0.3.1/twopassresize","datatable":"//cdn.rawgit.com/ehouais/js-data-libs/v0.5.1/datatable","tabletop":"//cdnjs.cloudflare.com/ajax/libs/tabletop.js/1.5.2/tabletop.min"},"shim":{"sjcl":{"exports":"sjcl"}}};
+            var config = {"baseUrl":"/assets","paths":{"http":"js-data-libs/v0.5.1/http","text":"//cdnjs.cloudflare.com/ajax/libs/require-text/2.0.12/text.min","gist-fs":"js-data-libs/v0.5.1/gist-fs","on-demand":"js-data-libs/v0.5.1/on-demand","crypto":"js-data-libs/v0.5.1/crypto","sjcl":"//cdnjs.cloudflare.com/ajax/libs/sjcl/1.0.6/sjcl.min","d3":"//cdnjs.cloudflare.com/ajax/libs/d3/4.2.8/d3.min","twopassresize":"charts/v0.3.2/twopassresize","datatable":"js-data-libs/v0.5.1/datatable","tabletop":"//cdnjs.cloudflare.com/ajax/libs/tabletop.js/1.5.2/tabletop.min"},"shim":{"sjcl":{"exports":"sjcl"}}};
             config.config = {text: {useXhr: function(url, protocol, hostname, port) {
                 return true; // force use of CORS for text dependencies
             }}};

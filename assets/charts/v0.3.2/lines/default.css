@@ -1,0 +1,43 @@
+svg, g {
+    font-family: 'condensed';
+}
+body {
+    margin: 0;
+    border: 0;
+    overflow: hidden;
+}
+
+.line {
+    fill: none;
+}
+.axis.y path {
+    display:none;
+}
+.axis.y line {
+    stroke: #999;
+    stroke-dasharray: 1,2;
+    shape-rendering: crispEdges;
+}
+.circleMarker {
+    stroke: none;
+}
+
+/* timescale rules */
+.axis.x .lines line {
+    stroke: #999;
+}
+.axis.x path, .axis.x line {
+    shape-rendering: crispEdges;
+}
+.axis.x.minor path {
+    display: none;
+}
+.axis.x.major .lines line {
+    stroke-dasharray: 2,2,1,0;
+}
+.axis.x.minor .lines line {
+    stroke-dasharray: 1,4;
+}
+.lines path {
+    display: none;
+}

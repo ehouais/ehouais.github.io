@@ -1,0 +1,41 @@
+html, body {
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
+    background-color: #fff;
+}
+svg, g {
+    font-family: 'condensed';
+}
+
+.hline {
+    stroke: #999;
+    stroke-dasharray: 1,2;
+    shape-rendering: crispEdges;
+}
+line.now {
+    stroke: red;
+    stroke-width: 2px;
+    shape-rendering: crispEdges;
+    stroke-dasharray: 2,2;
+}
+
+/* timescale rules */
+.axis.x .lines line {
+    stroke: #999;
+}
+.axis.x path, .axis.x line {
+    shape-rendering: crispEdges;
+}
+.axis.x.minor path {
+    display: none;
+}
+.axis.x.major .lines line {
+    stroke-dasharray: 2,2,1,0;
+}
+.axis.x.minor .lines line {
+    stroke-dasharray: 1,4;
+}
+.lines path {
+    display: none;
+}

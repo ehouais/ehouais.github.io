@@ -1,0 +1,7 @@
+svg, g {
+    font-family: 'condensed';
+}
+path.tick {
+    fill: none;
+    stroke: grey;
+}
