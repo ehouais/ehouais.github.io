@@ -1,1 +1,466 @@
-404: Not Found
+﻿<html>
+    <head>
+        <meta charset="utf-8">
+        <script src="//cdnjs.cloudflare.com/ajax/libs/require.js/2.3.2/require.min.js"></script>
+<script>
+    require.config({
+        baseUrl: '//cdn.rawgit.com/ehouais/webviews/v0.5.0/tabs',
+        paths: {
+            http: '//cdn.rawgit.com/ehouais/js-data-libs/v0.5.1/http',
+            sjcl: '//cdnjs.cloudflare.com/ajax/libs/sjcl/1.0.6/sjcl.min',
+            'gist-fs': '//cdn.rawgit.com/ehouais/js-data-libs/v0.5.1/gist-fs',
+            'on-demand': '//cdn.rawgit.com/ehouais/js-data-libs/v0.5.1/on-demand',
+            crypto: '//cdn.rawgit.com/ehouais/js-data-libs/v0.5.1/crypto'
+        },
+        shim: {sjcl: {exports: 'sjcl'}},
+        config: {
+            text: {
+                useXhr: function(url, protocol, hostname, port) {
+                    return true; // force use of CORS for text dependencies
+                }
+            }
+        }
+    });
+
+    var param = (function(uri) {
+            var a = document.createElement('a');
+            a.href = uri;
+            return a.search.replace(/^\?/, '').split('&').reduce(function(obj, pair) {
+                var tokens = pair.split('=');
+                obj[tokens[0]] = decodeURIComponent(tokens[1]);
+                return obj;
+            }, {});
+        })(window.location.href).data,
+        match = param.match(/db\/(.+)/),
+        id = match[1];
+
+    Webviews = (function() {
+        var handler,
+            debounce = function(func, wait, immediate) {
+                var timeout;
+                return function() {
+                    var context = this, args = arguments;
+                    var later = function() {
+                        timeout = null;
+                        if (!immediate) func.apply(context, args);
+                    };
+                    var callNow = immediate && !timeout;
+                    clearTimeout(timeout);
+                    timeout = setTimeout(later, wait);
+                    if (callNow) func.apply(context, args);
+                };
+            },
+            load = function() {
+                require(['gist-fs', 'on-demand', 'crypto'], function(GistFs, OnDemand, crypto) {
+                    var githubPwd = OnDemand(sessionStorage, 'githubPwd'),
+                        dbGistId = OnDemand(localStorage, 'dbGistId'),
+                        fs = GistFs('ehouais', githubPwd(), dbGistId()),
+                        cipherKey = OnDemand(sessionStorage, 'cipherKey');
+
+                    fs.get(id, function(data) {
+                        handler(crypto.decipher(cipherKey(), data.content));
+                    });
+                });
+            },
+            save = debounce(function(data) {
+                require(['gist-fs', 'on-demand', 'crypto'], function(GistFs, OnDemand, crypto) {
+                    var githubPwd = OnDemand(sessionStorage, 'githubPwd'),
+                        dbGistId = OnDemand(localStorage, 'dbGistId'),
+                        fs = GistFs('ehouais', githubPwd(), dbGistId()),
+                        cipherKey = OnDemand(sessionStorage, 'cipherKey');
+
+                    fs.update(id, crypto.cipher(cipherKey(), data), function() {
+                        console.log('saved.');
+                    });
+                });
+            }, 5000),
+            data = {
+                bind: function(cb) {
+                    handler = cb;
+                    load();
+                },
+                save: function(data) {
+                    save(data);
+                    handler(data);
+                },
+                trigger: function() {}
+            };
+
+        return {
+            data: function() {
+                return data;
+            }
+        }
+    })();
+</script>
+
+        <style>
+            * {
+                -moz-box-sizing: border-box;
+                -webkit-box-sizing: border-box;
+                box-sizing: border-box;
+                font-family: arial;
+            }
+            body {
+                margin: 0;
+                padding: 0;
+                overflow: hidden;
+            }
+            #dom  {
+                width: 100%;
+                height: 100%;
+                overflow: hidden;
+                background-color: #444;
+            }
+            #container {
+                display: table;
+                height: 100%;
+                margin: auto;
+            }
+            .frame {
+                position: absolute;
+                overflow: hidden;
+                background-color: #ddd;
+            }
+            .image {
+                background-repeat: no-repeat;
+                background-position: center;
+                background-size: cover;
+            }
+            .label {
+                font-family: encode;
+            }
+            .link {
+                font-family: encode;
+                display: block;
+                height: 16px;
+                background-color: #ddd;
+                border-radius: 4px;
+                text-align: center;
+                font-size: 12px;
+                text-decoration: none;
+                color: rgb(0, 0, 238);
+                line-height: 125%;
+            }
+            .link:hover {
+                background-color: #fff;
+                color: #f00;
+            }
+            #overlay {
+                position: absolute;
+                top: 0;
+                width: 100%;
+                height: 100%;
+                display: none;
+            }
+            .mask {
+                position: absolute;
+                cursor: pointer;
+                background-color: #ffffff;
+                opacity: 0.3;
+            }
+
+            .form {
+                width: 400px;
+                padding: 10px;
+                background-color: #eee;
+                border-radius: 4px;
+                font-family: sans-serif;
+                font-size: 13px;
+            }
+            .form input {
+                margin-bottom: 2px;
+                padding: 5px;
+                font: inherit;
+                border: 1px solid #ccc;
+            }
+            .form input[type=text] {
+                width: 100%
+            }
+            .form input:focus {
+                border-color: #66afe9;
+                outline: 0;
+                box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(102,175,233,.6);
+                transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
+            }
+            .form button {
+                font: inherit;
+                padding: 4px 10px;
+                border: none;
+                border-radius: 3px;
+                cursor: pointer;
+                background-color: #ccc;
+                border: 1px solid #ccc;
+                margin-right: 2px;
+            }
+            .form button:hover {
+                background-color: #ddd;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="dom"></div>
+        <div id="overlay"></div>
+        <div id="creation_form" class="form"></div>
+        <div id="edition_form" class="form"></div>
+        <script>
+            require.config({
+                paths: {
+                    jquery: '//cdnjs.cloudflare.com/ajax/libs/jquery/3.1.0/jquery.min',
+                    'ui-utils': 'https://cdn.rawgit.com/ehouais/js-ui-utils/v0.4.1/ui-utils',
+                    overlay: 'https://cdn.rawgit.com/ehouais/js-ui-utils/v0.4.1/overlay',
+                    form: 'https://cdn.rawgit.com/ehouais/js-ui-utils/v0.4.1/form'
+                }
+            });
+            require(['sjcl', 'overlay', 'form', 'jquery'], function(sjcl, Overlay, Form, $) {
+                var dataSource = Webviews.data(),
+                    maxId = 0,
+                    dashboard,
+                    formDomain = document.location.origin,
+                    refresh = function() {
+                        dataSource.save(JSON.stringify(dashboard));
+                        dataSource.trigger();
+                    };
+
+                var $db = $(document.body),
+                    $dom = $('#dom'),
+                    $getFrame = function(id) {
+                        return $('#frame_'+id, $dom);
+                    },
+                    setFrame = function($dom, frame) {
+                        var left, top;
+
+                        $dom.css({left: left = frame.left, top: top = frame.top}).width(frame.right-left).height(frame.bottom-top);
+                    };
+
+                dataSource.bind(function(data) {
+                    var $frames = $('.frame', $dom);
+
+                    dashboard = JSON.parse(data || '{"frames": []}');
+                    dashboard.favicon && $('<link>').attr({rel: 'icon', type: 'image/png', href: dashboard.favicon}).appendTo($('head'));
+
+                    dashboard.frames.forEach(function(frame, index) {
+                        var $frame = $getFrame(frame.id = frame.id || index),
+                            setup = function() {
+                                // apply template according to resource type
+                                if (frame.uri.match(/\.(jpg|jpeg|png|gif)$/)) {
+                                    $frame.addClass('image').css('background-image', 'url('+frame.uri+')');
+                                } else {
+                                    $frame.append($('<iframe/>').attr({src: frame.uri, frameborder: 0}).css({width: '100%', height: '100%'}));
+                                }
+                                $frame.data('uri', frame.uri);
+                            };
+
+                        // keep track of highest id
+                        maxId = Math.max(maxId, frame.id);
+
+                        if ($frame.length) {
+                            // reset frame if URI has changed
+                            if (frame.uri != $frame.data('uri')) {
+                                $frame.empty().removeClass('image').css('background-image', 'none');
+                                setup();
+                            }
+                            // remove node from list of missing nodes
+                            $frames = $frames.not($frame[0]);
+                        } else {
+                            // create and setup frame
+                            $frame = $('<div/>').attr('id', 'frame_'+frame.id).addClass('frame').appendTo($dom);
+                            setup();
+                        }
+                        // update link to data
+                        $frame.data('frame', frame);
+                        // set frame position and size
+                        setFrame($frame, frame);
+                    });
+
+                    // remove orphan DOM nodes
+                    $frames.remove();
+                });
+
+                // Setup controllers
+                (function() {
+                    var $overlay = $('#overlay'),
+                        $cform = $('#creation_form')[0],
+                        cform = Form($cform, {fields: {uri: 'URI'}, buttons: {cancel: 'Cancel'}}, {
+                            submit: function(data) {
+                                if (data.uri)
+                                    frame(200, 200, msg.data.uri);
+
+                                coverlay.hide();
+                            },
+                            cancel: function() {
+                                coverlay.hide();
+                            }
+                        }),
+                        coverlay = Overlay($cform, {'background-color': 'rgba(0,0,0,0.5)'}),
+                        $eform = $('#edition_form')[0],
+                        eform = Form($eform, {
+                            fields: {uri: 'URI'},
+                            buttons: {cancel: 'Cancel', refresh: 'Refresh', newpage: 'New page', delete: 'Delete'},
+                            hidden: {id: null}
+                        }, {
+                            cancel: function() {
+                                eoverlay.hide();
+                            },
+                            submit: function(data) {
+                                $getFrame(data.id).data('frame').uri = data.uri;
+                                refresh();
+                                eoverlay.hide();
+                            },
+                            refresh: function(data) {
+                                var iframe = $('iframe', $frame)[0],
+                                    $frame = $getFrame(data.id),
+                                    tokens = $frame.data('frame').uri.split('?');
+
+                                uri = tokens[0]+(tokens[1] ? '?'+tokens[1]+'&' : '?')+'random='+(new Date()).getTime();
+                                if (iframe) {
+                                    iframe.src = uri;
+                                } else {
+                                    $frame.css('background-image', 'url('+uri+')');
+                                }
+                                eoverlay.hide();
+                            },
+                            newpage: function(data) {
+                                window.open($getFrame(data.id).data('frame').uri);
+                                eoverlay.hide();
+                            },
+                            delete: function(data) {
+                                if (confirm('Are you sure ?')) {
+                                    $('.mask', $overlay).filter(function() {
+                                        return $(this).data('frame_id') == data.id;
+                                    }).remove();
+                                    dashboard.frames = dashboard.frames.filter(function(item) {
+                                        return item !== $getFrame(data.id).data('frame');
+                                    });
+                                    refresh();
+                                    eoverlay.hide();
+                                }
+                            }
+                        }),
+                        eoverlay = Overlay($eform, {'background-color': 'rgba(0,0,0,0.5)'}),
+                        step = 4,
+                        selected,
+                        updateMask = function($mask) {
+                            setFrame($mask, $getFrame($mask.data('frame_id')).data('frame'));
+                        },
+                        frame = function(width, height, uri) {
+                            var cx = $dom.width()/2,
+                                cy = $dom.height()/2;
+
+                            dashboard.frames.push({
+                                id: ++maxId,
+                                left: 0|cx-width/2,
+                                right: 0|cx+width/2,
+                                top: 0|cy-height/2,
+                                bottom: 0|cy+height/2,
+                                uri: uri,
+                            });
+                            refresh();
+                        };
+
+                    // Prevent some default behaviours
+                    $dom.on('mousedown mousewheel', function(e) {
+                        e.preventDefault();
+                    });
+
+                    // edit mode toggle ans masks creation
+                    $dom.on('mousedown', function() {
+                        var tid,
+                            clear = function() {
+                                clearTimeout(tid);
+                                $dom.off('mouseup', clear);
+                            };
+
+                        $dom.on('mouseup', clear);
+                        tid = setTimeout(function() {
+                            dashboard.frames.forEach(function(frame) {
+                                updateMask($('<div/>').addClass('mask').data('frame_id', frame.id).appendTo($overlay));
+                            });
+                            $overlay.show();
+                        }, 500);
+                    });
+
+                    // edition popup
+                    $overlay.on('dblclick', '.mask', function(e) {
+                        var $mask = $(e.target),
+                            $frame = $getFrame($mask.data('frame_id')),
+                            frame = $frame.data('frame');
+
+                        eform({id: frame.id, uri: decodeURI(frame.uri)});
+                        eoverlay.show();
+                    });
+
+                    // Creation popup using "Forms" webview
+                    $dom.on('dblclick', function() {
+                        cform({});
+                        coverlay.show();
+                    });
+
+                    // Overlay installment for frames manipulation
+                    $overlay.on('click', function(e) {
+                        if (selected) {
+                            $(selected).css('background-color', '#ffffff');
+                        }
+                        if (e.target == $overlay.get(0)) {
+                            selected = null;
+                            $('.mask', $overlay).remove();
+                            $overlay.hide();
+                        } else {
+                            selected = e.target;
+                            $(selected).css('background-color', '#ff0000');
+                        }
+                    });
+
+                    // Frame handling through masks
+                    $overlay.on('mousedown', '.mask', function(e) {
+                        var $mask = $(e.target),
+                            $frame = $getFrame($mask.data('frame_id')),
+                            frame = $frame.data('frame'),
+                            mx = e.pageX, my = e.pageY,
+                            dx1 = mx-frame.left, dy1 = my-frame.top,
+                            dx2 = frame.right-mx, dy2 = frame.bottom-my,
+                            moving = (dx2 > 10 || dy2 > 10),
+                            snap = function(val) {
+                                return val-val%step;
+                            },
+                            mm = function(e) {
+                                frame = $frame.data('frame'),
+                                mx = e.pageX;
+                                my = e.pageY;
+                                if (moving) {
+                                    frame.left = snap(mx-dx1);
+                                    frame.top = snap(my-dy1);
+                                }
+                                frame.right = snap(mx+dx2);
+                                frame.bottom = snap(my+dy2);
+                                updateMask($mask);
+                                refresh();
+                            },
+                            mu = function() {
+                                $overlay.off('mousemove', mm).off('mouseup', mu);
+                            };
+
+                        $overlay.on('mousemove', mm).on('mouseup', mu);
+                        e.preventDefault();
+                    });
+                    $overlay.on('mousedown mousewheel', function(e) {
+                        e.preventDefault();
+                    });
+
+                    // DnD
+                    $dom.on({
+                        'dragstart dragenter dragleave dragover dragend': function noop(e) {
+                            e.stopPropagation();
+                            e.preventDefault();
+                        },
+                        'drop': function(e) {
+                            noop(e);
+                            var link = e.originalEvent.dataTransfer.getData('text/uri-list');
+                            frame(200, 200, link);
+                        }
+                    });
+                })();
+            });
+        </script>
+    </body>
+</html>
