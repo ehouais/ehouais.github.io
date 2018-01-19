@@ -99,7 +99,6 @@
                     localKey = OnDemand(sessionStorage, 'cipherKey'),
                     dbGistId = OnDemand(localStorage, 'dbGistId'),
                     data = (function() {
-                        //var fs = GistFs({user: 'ehouais', password: githubPwd()}, dbGistId()),
                         var fs = GistFs('ehouais', githubPwd(), dbGistId()),
                             files = {},
                             selected,
