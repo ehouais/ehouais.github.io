@@ -18,7 +18,7 @@
     </head>
     <body>
         <script>
-            var config = {"baseUrl":"/assets","paths":{"http":"js-data-libs/v0.5.1/http","text":"//cdnjs.cloudflare.com/ajax/libs/require-text/2.0.12/text.min","gist-fs":"js-data-libs/v0.5.1/gist-fs","on-demand":"js-data-libs/v0.5.1/on-demand","crypto":"js-data-libs/v0.5.1/crypto","sjcl":"//cdnjs.cloudflare.com/ajax/libs/sjcl/1.0.6/sjcl.min","chart":"charts/v0.3.2/diagram/chart","snap.svg":"//cdnjs.cloudflare.com/ajax/libs/snap.svg/0.5.1/snap.svg-min","twopassresize":"charts/v0.3.2/twopassresize","tabletop":"//cdnjs.cloudflare.com/ajax/libs/tabletop.js/1.5.2/tabletop.min","ext_parser":"charts/v0.3.2/diagram/ext_parser"},"shim":{"sjcl":{"exports":"sjcl"},"ext_parser":{"exports":"parser"}}};
+            var config = {"baseUrl":"/assets","paths":{"http":"js-data-libs/v0.6.0/http","text":"//cdnjs.cloudflare.com/ajax/libs/require-text/2.0.12/text.min","gist-db":"js-data-libs/v0.6.0/gist-db","on-demand":"js-data-libs/v0.6.0/on-demand","crypto":"js-data-libs/v0.6.0/crypto","sjcl":"//cdnjs.cloudflare.com/ajax/libs/sjcl/1.0.6/sjcl.min","chart":"charts/v0.3.2/diagram/chart","snap.svg":"//cdnjs.cloudflare.com/ajax/libs/snap.svg/0.5.1/snap.svg-min","twopassresize":"charts/v0.3.2/twopassresize","tabletop":"//cdnjs.cloudflare.com/ajax/libs/tabletop.js/1.5.2/tabletop.min","ext_parser":"charts/v0.3.2/diagram/ext_parser"},"shim":{"sjcl":{"exports":"sjcl"},"ext_parser":{"exports":"parser"}}};
             config.config = {text: {useXhr: function(url, protocol, hostname, port) {
                 return true; // force use of CORS for text dependencies
             }}};
@@ -78,14 +78,14 @@ if (match = data.match(/^data:([^,;]+)(;[^,]+)?,(.*)/)) {
         }, true);
     });
 } else if (match = data.match(/db\/(.+)/)) {
-    require(['gist-fs', 'on-demand', 'crypto'], function(GistFs, OnDemand, crypto) {
+    require(['gist-db', 'on-demand', 'crypto'], function(GistDb, OnDemand, crypto) {
         var id = match[1],
             githubPwd = OnDemand(sessionStorage, 'githubPwd'),
             dbGistId = OnDemand(localStorage, 'dbGistId'),
-            fs = GistFs('ehouais', githubPwd(), dbGistId()),
+            db = GistDb({user: 'ehouais', password: githubPwd()}, dbGistId()),
             cipherKey = OnDemand(sessionStorage, 'cipherKey');
 
-        fs.get(id, function(data) {
+        db.get(id, function(data) {
             parse(crypto.decipher(cipherKey(), data.content), update);
         });
     });

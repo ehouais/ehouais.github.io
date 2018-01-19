@@ -9,7 +9,7 @@
     </head>
     <body>
         <script>
-            var config = {"baseUrl":"/assets","paths":{"http":"js-data-libs/v0.5.1/http","text":"//cdnjs.cloudflare.com/ajax/libs/require-text/2.0.12/text.min","sjcl":"//cdnjs.cloudflare.com/ajax/libs/sjcl/1.0.6/sjcl.min","gist-fs":"js-data-libs/v0.5.1/gist-fs","on-demand":"js-data-libs/v0.5.1/on-demand","crypto":"js-data-libs/v0.5.1/crypto","renderer":"webviews/v0.5.0/table/renderer","tablesort":"//cdnjs.cloudflare.com/ajax/libs/tablesort/5.0.0/tablesort.min"},"shim":{"sjcl":{"exports":"sjcl"},"tablesort":{"exports":"Tablesort"}}};
+            var config = {"baseUrl":"/assets","paths":{"http":"js-data-libs/v0.6.0/http","text":"//cdnjs.cloudflare.com/ajax/libs/require-text/2.0.12/text.min","sjcl":"//cdnjs.cloudflare.com/ajax/libs/sjcl/1.0.6/sjcl.min","gist-db":"js-data-libs/v0.6.0/gist-db","on-demand":"js-data-libs/v0.6.0/on-demand","crypto":"js-data-libs/v0.6.0/crypto","renderer":"webviews/v0.5.0/table/renderer","tablesort":"//cdnjs.cloudflare.com/ajax/libs/tablesort/5.0.0/tablesort.min"},"shim":{"sjcl":{"exports":"sjcl"},"tablesort":{"exports":"Tablesort"}}};
             config.config = {text: {useXhr: function(url, protocol, hostname, port) {
                 return true; // force use of CORS for text dependencies
             }}};
@@ -66,14 +66,14 @@ if (match = data.match(/^data:([^,;]+)(;[^,]+)?,(.*)/)) {
         }, true);
     });
 } else if (match = data.match(/db\/(.+)/)) {
-    require(['gist-fs', 'on-demand', 'crypto'], function(GistFs, OnDemand, crypto) {
+    require(['gist-db', 'on-demand', 'crypto'], function(GistDb, OnDemand, crypto) {
         var id = match[1],
             githubPwd = OnDemand(sessionStorage, 'githubPwd'),
             dbGistId = OnDemand(localStorage, 'dbGistId'),
-            fs = GistFs('ehouais', githubPwd(), dbGistId()),
+            db = GistDb({user: 'ehouais', password: githubPwd()}, dbGistId()),
             cipherKey = OnDemand(sessionStorage, 'cipherKey');
 
-        fs.get(id, function(data) {
+        db.get(id, function(data) {
             parse(crypto.decipher(cipherKey(), data.content), update);
         });
     });
