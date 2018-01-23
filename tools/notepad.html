@@ -5,16 +5,17 @@
         <script src="//cdnjs.cloudflare.com/ajax/libs/sjcl/1.0.6/sjcl.min.js"></script>
         <script src="//cdnjs.cloudflare.com/ajax/libs/markdown-it/8.0.0/markdown-it.min.js"></script>
         <script src="//cdnjs.cloudflare.com/ajax/libs/jquery.perfect-scrollbar/0.6.15/js/perfect-scrollbar.jquery.min.js"></script>
-        <script src="//cdnjs.cloudflare.com/ajax/libs/require.js/2.3.2/require.min.js"></script>
+        
+<script src="//cdnjs.cloudflare.com/ajax/libs/require.js/2.3.2/require.min.js"></script>
 <script>
     require.config({
-        baseUrl: '//cdn.rawgit.com/ehouais/webviews/v0.5.0/tabs',
+        baseUrl: '/assets',
         paths: {
-            http: '//cdn.rawgit.com/ehouais/js-data-libs/v0.5.1/http',
+            http: 'js-data-libs/v0.8.0/http',
             sjcl: '//cdnjs.cloudflare.com/ajax/libs/sjcl/1.0.6/sjcl.min',
-            'gist-fs': '//cdn.rawgit.com/ehouais/js-data-libs/v0.5.1/gist-fs',
-            'on-demand': '//cdn.rawgit.com/ehouais/js-data-libs/v0.5.1/on-demand',
-            crypto: '//cdn.rawgit.com/ehouais/js-data-libs/v0.5.1/crypto'
+            'mlab-db': 'js-data-libs/v0.8.0/mlab-db',
+            'on-demand': 'js-data-libs/v0.8.0/on-demand',
+            crypto: 'js-data-libs/v0.8.0/crypto'
         },
         shim: {sjcl: {exports: 'sjcl'}},
         config: {
@@ -55,25 +56,23 @@
                 };
             },
             load = function() {
-                require(['gist-fs', 'on-demand', 'crypto'], function(GistFs, OnDemand, crypto) {
-                    var githubPwd = OnDemand(sessionStorage, 'githubPwd'),
-                        dbGistId = OnDemand(localStorage, 'dbGistId'),
-                        fs = GistFs('ehouais', githubPwd(), dbGistId()),
+                require(['mlab-db', 'on-demand', 'crypto'], function(MlabDb, OnDemand, crypto) {
+                    var apiKey = OnDemand(localStorage, 'mlabApiKey'),
+                        db = MlabDb({apikey: apiKey(), database: '', collection: ''}),
                         cipherKey = OnDemand(sessionStorage, 'cipherKey');
 
-                    fs.get(id, function(data) {
+                    db.get(id, function(data) {
                         handler(crypto.decipher(cipherKey(), data.content));
                     });
                 });
             },
             save = debounce(function(data) {
-                require(['gist-fs', 'on-demand', 'crypto'], function(GistFs, OnDemand, crypto) {
-                    var githubPwd = OnDemand(sessionStorage, 'githubPwd'),
-                        dbGistId = OnDemand(localStorage, 'dbGistId'),
-                        fs = GistFs('ehouais', githubPwd(), dbGistId()),
+                require(['mlab-db', 'on-demand', 'crypto'], function(MlabDb, OnDemand, crypto) {
+                    var apiKey = OnDemand(localStorage, 'mlabApiKey'),
+                        db = MlabDb({apikey: apiKey(), database: '', collection: ''}),
                         cipherKey = OnDemand(sessionStorage, 'cipherKey');
 
-                    fs.update(id, crypto.cipher(cipherKey(), data), function() {
+                    db.update(id, crypto.cipher(cipherKey(), data), function() {
                         console.log('saved.');
                     });
                 });
