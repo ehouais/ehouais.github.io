@@ -18,7 +18,7 @@
     </head>
     <body>
         <script>
-            var config = {"baseUrl":"/assets","paths":{"http":"js-data-libs/v0.8.0/http","text":"//cdnjs.cloudflare.com/ajax/libs/require-text/2.0.12/text.min","gist-db":"js-data-libs/v0.8.0/gist-db","mlab-db":"js-data-libs/v0.8.0/mlab-db","on-demand":"js-data-libs/v0.8.0/on-demand","crypto":"js-data-libs/v0.8.0/crypto","sjcl":"//cdnjs.cloudflare.com/ajax/libs/sjcl/1.0.6/sjcl.min","chart":"charts/v0.3.2/diagram/chart","snap.svg":"//cdnjs.cloudflare.com/ajax/libs/snap.svg/0.5.1/snap.svg-min","twopassresize":"charts/v0.3.2/twopassresize","tabletop":"//cdnjs.cloudflare.com/ajax/libs/tabletop.js/1.5.2/tabletop.min","ext_parser":"charts/v0.3.2/diagram/ext_parser"},"shim":{"sjcl":{"exports":"sjcl"},"ext_parser":{"exports":"parser"}}};
+            var config = {"baseUrl":"/assets","paths":{"http":"js-data-libs/v0.9.0/http","text":"//cdnjs.cloudflare.com/ajax/libs/require-text/2.0.12/text.min","gist":"js-data-libs/v0.9.0/gist","mlab":"js-data-libs/v0.9.0/mlab","tabletop":"//cdnjs.cloudflare.com/ajax/libs/tabletop.js/1.5.2/tabletop.min","on-demand":"js-data-libs/v0.9.0/on-demand","crypto":"js-data-libs/v0.9.0/crypto","sjcl":"//cdnjs.cloudflare.com/ajax/libs/sjcl/1.0.6/sjcl.min","chart":"charts/v0.3.2/diagram/chart","datasource":"js-data-libs/v0.9.0/datasource","snap.svg":"//cdnjs.cloudflare.com/ajax/libs/snap.svg/0.5.1/snap.svg-min","twopassresize":"charts/v0.3.2/twopassresize","ext_parser":"charts/v0.3.2/diagram/ext_parser"},"shim":{"sjcl":{"exports":"sjcl"},"ext_parser":{"exports":"parser"}}};
             config.config = {text: {useXhr: function(url, protocol, hostname, port) {
                 return true; // force use of CORS for text dependencies
             }}};
@@ -59,68 +59,13 @@
 
                 window.addEventListener('resize', chart.resize);
 
+                require(['datasource', 'crypto', 'on-demand'], function(datasource, crypto, OnDemand) {
+                    var cipherKey = OnDemand(sessionStorage, 'cipherKey');
 
-var match,
-    str;
-
-if (match = data.match(/^data:([^,;]+)(;[^,]+)?,(.*)/)) {
-    str = decodeURIComponent(match[3]);
-    if (match[1] == 'text/csv') {
-        str = str.replace(/;/g, '\n');
-    }
-    parse(str, update);
-} else if (data.match(/^https?:/)) {
-    require(['http', 'on-demand', 'crypto'], function(Http, OnDemand, crypto) {
-        var uri = data,
-            cipherKey = OnDemand(sessionStorage, 'cipherKey');
-
-        Http.get(uri, function(data) {
-            parse(crypto.decipher(cipherKey(), data), update);
-        }, true);
-    });
-} else if (match = data.match(/mg\/(.+)/)) {
-    require(['mlab-db', 'on-demand', 'crypto'], function(MlabDb, OnDemand, crypto) {
-        var id = match[1],
-            apiKey = OnDemand(localStorage, 'mlabApiKey'),
-            db = MlabDb({apikey: apiKey(), database: 'misc', collection: 'webviews'}),
-            cipherKey = OnDemand(sessionStorage, 'cipherKey');
-
-        db.get({query: {id: id}, unique: true}, function(data) {
-            parse(crypto.decipher(cipherKey(), JSON.stringify(data.value)), update);
-        });
-    });
-} else if (match = data.match(/db\/(.+)/)) {
-    require(['gist-db', 'on-demand', 'crypto'], function(GistDb, OnDemand, crypto) {
-        var id = match[1],
-            githubPwd = OnDemand(sessionStorage, 'githubPwd'),
-            dbGistId = OnDemand(localStorage, 'dbGistId'),
-            db = GistDb({gistid: dbGistId(), user: 'ehouais', password: githubPwd()}),
-            cipherKey = OnDemand(sessionStorage, 'cipherKey');
-
-        db.get(id, function(data) {
-            parse(crypto.decipher(cipherKey(), data.content), update);
-        });
-    });
-} else if (match = data.match(/gs\/(.+)/)) {
-    require(['tabletop'], function(Tabletop) {
-        Tabletop.init({
-            key: 'https://docs.google.com/spreadsheets/d/'+match[1]+'/pubhtml',
-            callback: function(data, tabletop) {
-                var sheet = tabletop.models[tabletop.modelNames[0]]; // first sheet
-                update({
-                    cols: sheet.columnNames.map(function(name) {
-                        return {label: name};
-                    }),
-                    rows: sheet.toArray()
+                    datasource(data).then(function(str) {
+                        parse(crypto.decipher(cipherKey, str), update);
+                    });
                 });
-            },
-            simpleSheet: true
-        });
-    });
-} else {
-    parse(data, update);
-}
-
             });
         </script>
     </body>
