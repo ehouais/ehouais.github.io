@@ -32,7 +32,7 @@ define(['on-demand'], function(OnDemand) {
             
                     db.select({query: {id: id}, unique: true}).then(function(response) {
                         if (response) {
-                            return response.body();
+                            return JSON.stringify(response.value);
                         } else {
                             return new Promise(function(resolve, reject) {
                                 require(['gist'], function(Gist) {
