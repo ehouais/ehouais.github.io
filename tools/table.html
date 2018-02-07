@@ -9,7 +9,7 @@
     </head>
     <body>
         <script>
-            var config = {"baseUrl":"/assets","paths":{"http":"js-data-libs/v0.9.0/http","text":"//cdnjs.cloudflare.com/ajax/libs/require-text/2.0.12/text.min","sjcl":"//cdnjs.cloudflare.com/ajax/libs/sjcl/1.0.6/sjcl.min","gist":"js-data-libs/v0.9.0/gist","mlab":"js-data-libs/v0.9.0/mlab","on-demand":"js-data-libs/v0.9.0/on-demand","crypto":"js-data-libs/v0.9.0/crypto","renderer":"webviews/v0.5.0/table/renderer","datasource":"js-data-libs/v0.9.0/datasource","tablesort":"//cdnjs.cloudflare.com/ajax/libs/tablesort/5.0.0/tablesort.min"},"shim":{"sjcl":{"exports":"sjcl"},"tablesort":{"exports":"Tablesort"}}};
+            var config = {"baseUrl":"/assets","paths":{"http":"js-data-libs/v0.10.0/http","text":"//cdnjs.cloudflare.com/ajax/libs/require-text/2.0.12/text.min","sjcl":"//cdnjs.cloudflare.com/ajax/libs/sjcl/1.0.6/sjcl.min","gist":"js-data-libs/v0.10.0/gist","mlab":"js-data-libs/v0.10.0/mlab","on-demand":"js-data-libs/v0.10.0/on-demand","renderer":"webviews/v0.5.0/table/renderer","datasource":"js-data-libs/v0.10.0/datasource","tablesort":"//cdnjs.cloudflare.com/ajax/libs/tablesort/5.0.0/tablesort.min"},"shim":{"sjcl":{"exports":"sjcl"},"tablesort":{"exports":"Tablesort"}}};
             config.config = {text: {useXhr: function(url, protocol, hostname, port) {
                 return true; // force use of CORS for text dependencies
             }}};
@@ -41,14 +41,13 @@
                             rows: rows
                         });
 
-
                     };
 
-                    require(['datasource', 'crypto', 'on-demand'], function(datasource, crypto, OnDemand) {
+                    require(['datasource', 'on-demand'], function(datasource, OnDemand) {
                         var cipherKey = OnDemand(sessionStorage, 'cipherKey');
     
-                        datasource(data).then(function(str) {
-                            parse(crypto.decipher(cipherKey, str), function(data) {
+                        datasource(data, cipherKey).then(function(str) {
+                            parse(str, function(data) {
                                 renderer.update(data);
                             });
                         });

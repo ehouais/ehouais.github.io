@@ -19,7 +19,7 @@
     </head>
     <body>
         <script>
-            var config = {"baseUrl":"/assets","paths":{"http":"js-data-libs/v0.9.0/http","text":"//cdnjs.cloudflare.com/ajax/libs/require-text/2.0.12/text.min","gist":"js-data-libs/v0.9.0/gist","mlab":"js-data-libs/v0.9.0/mlab","tabletop":"//cdnjs.cloudflare.com/ajax/libs/tabletop.js/1.5.2/tabletop.min","on-demand":"js-data-libs/v0.9.0/on-demand","crypto":"js-data-libs/v0.9.0/crypto","sjcl":"//cdnjs.cloudflare.com/ajax/libs/sjcl/1.0.6/sjcl.min","chart":"charts/v0.3.2/vbars/chart","datasource":"js-data-libs/v0.9.0/datasource","d3":"//cdnjs.cloudflare.com/ajax/libs/d3/4.2.8/d3.min","twopassresize":"charts/v0.3.2/twopassresize","datatable":"js-data-libs/v0.9.0/datatable"},"shim":{"sjcl":{"exports":"sjcl"}}};
+            var config = {"baseUrl":"/assets","paths":{"http":"js-data-libs/v0.10.0/http","text":"//cdnjs.cloudflare.com/ajax/libs/require-text/2.0.12/text.min","gist":"js-data-libs/v0.10.0/gist","mlab":"js-data-libs/v0.10.0/mlab","tabletop":"//cdnjs.cloudflare.com/ajax/libs/tabletop.js/1.5.2/tabletop.min","on-demand":"js-data-libs/v0.10.0/on-demand","sjcl":"//cdnjs.cloudflare.com/ajax/libs/sjcl/1.0.6/sjcl.min","chart":"charts/v0.3.2/vbars/chart","datasource":"js-data-libs/v0.10.0/datasource","d3":"//cdnjs.cloudflare.com/ajax/libs/d3/4.2.8/d3.min","twopassresize":"charts/v0.3.2/twopassresize","datatable":"js-data-libs/v0.10.0/datatable"},"shim":{"sjcl":{"exports":"sjcl"}}};
             config.config = {text: {useXhr: function(url, protocol, hostname, port) {
                 return true; // force use of CORS for text dependencies
             }}};
@@ -39,24 +39,23 @@
 
             require(['chart'], function(Chart) {
                 var chart,
-                    parse = function(str, cb) {
+                    parse = function(str) {
+                        return new Promise(function(resolve, reject) {
 
-                        require(['datatable'], function(DataTable) {
-                            var lines = str.split('\n'),
-                                header = lines.shift(),
-                                types = ['text'];
+                            require(['datatable'], function(DataTable) {
+                                var lines = str.split('\n'),
+                                    header = lines.shift(),
+                                    types = ['text'];
 
-                            cb({
-                                cols: header.split(',').map(function(cell) {
-                                    return {label: cell};
-                                }),
-                                rows: DataTable.dataFromCsv(lines.join('\n'), types)
+                                resolve({
+                                    cols: header.split(',').map(function(cell) {
+                                        return {label: cell};
+                                    }),
+                                    rows: DataTable.dataFromCsv(lines.join('\n'), types)
+                                });
                             });
-                        });
 
-                    },
-                    update = function(data) {
-                        chart.update(data);
+                        });
                     },
                     params = {margin: 0.05};
 
@@ -78,11 +77,11 @@
 
                 window.addEventListener('resize', chart.resize);
 
-                require(['datasource', 'crypto', 'on-demand'], function(datasource, crypto, OnDemand) {
+                require(['datasource', 'on-demand'], function(datasource, OnDemand) {
                     var cipherKey = OnDemand(sessionStorage, 'cipherKey');
 
-                    datasource(data).then(function(str) {
-                        parse(crypto.decipher(cipherKey, str), update);
+                    datasource(data, cipherKey).then(parse).then(function(data) {
+                        chart.update(data);
                     });
                 });
             });
