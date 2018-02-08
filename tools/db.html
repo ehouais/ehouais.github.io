@@ -84,8 +84,7 @@
                     'streams': 'js-data-libs/v0.10.0/streams',
                     'ui-utils': 'js-ui-utils/v0.4.2/ui-utils',
                     'mlab': 'js-data-libs/v0.10.0/mlab',
-                    'on-demand': 'js-data-libs/v0.10.0/on-demand',
-                    'crypto': 'js-data-libs/v0.10.0/crypto',
+                    'on-demand': 'js-data-libs/v0.10.0/on-demand'
                 },
                 shim: {
                     'sjcl': {
@@ -94,7 +93,7 @@
                 },
             });
 
-            require(['ui-utils', 'streams', 'mlab', 'on-demand', 'crypto'], function($, Stream, Mlab, OnDemand, crypto) {
+            require(['ui-utils', 'streams', 'mlab', 'on-demand','sjcl'], function($, Stream, Mlab, OnDemand, sjcl) {
                 var templates = $.extract('template-id'),
                     db = Mlab('misc', 'webviews'),
                     localKey = OnDemand(sessionStorage, 'cipherKey'),
@@ -107,13 +106,16 @@
                             }));
                             current.push();
                         });
+                    },
+                    cipher = function(data) {
+                        return sjcl.encrypt(localKey(), data, {ks: 256});
                     };
 
                 // "New" button
                 $.UI($.select('button.new'), function(createDoc) {
                     this.addEventListener('click', function(e) {
                         var name = window.prompt('Enter data name');
-                        if (name) createDoc(name, JSON.parse(crypto.cipher(localKey, '')));
+                        if (name) createDoc(name, JSON.parse(cipher('')));
                     });
                 }).activate(
                     function(id, text) {
@@ -178,7 +180,7 @@
                         $update.removeAttribute('disabled');
                     });
                     $update.addEventListener('click', function(e) {
-                        saveDoc($hidden.value, crypto.cipher(localKey, $textarea.value), function() {
+                        saveDoc($hidden.value, cipher($textarea.value), function() {
                             updateBtns(true);
                         });
                     });
@@ -192,7 +194,13 @@
                     current.output().amap(function(id, cb) {
                         if (id) {
                             db.select({query: {"id": id}, unique: true}).then(function(doc) {
-                                cb({id: id, text: crypto.decipher(localKey, JSON.stringify(doc.value))});
+                                try {
+                                    // try to decipher data
+                                    cb({id: id, text: sjcl.decrypt(localKey(), JSON.stringify(doc.value))});
+                                } catch(e) {
+                                    console.error('Invalid key or corrupt cipher text');
+                                    cb();
+                                }
                             });
                         } else {
                             cb();

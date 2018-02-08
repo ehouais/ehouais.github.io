@@ -45,7 +45,7 @@ define(['on-demand'], function(OnDemand) {
             delete: function(query) {
                 return fetch(
                     uri()
-                        +'&q='+JSON.stringify(select),
+                        +'&q='+JSON.stringify(query),
                     {method: 'PUT', headers: headers, body: JSON.stringify([])}
                 );
             }
