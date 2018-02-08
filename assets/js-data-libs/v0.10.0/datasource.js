@@ -55,8 +55,8 @@ define(function() {
                 });
             });
 
-        // gist file
-        } else if (match = str.match(/gs\/(.+)/)) {
+        // github gist file
+        } else if (match = str.match(/gg\/(.+)/)) {
             return new Promise(function(resolve, reject) {
                 require(['gist'], function(Gist) {
                     Gist().get(id).then(function(str) {
@@ -78,6 +78,7 @@ define(function() {
                     Tabletop.init({
                         key: 'https://docs.google.com/spreadsheets/d/'+match[1]+'/pubhtml',
                         simpleSheet: true,
+                        parseNumbers: true,
                         callback: function(data, tabletop) {
                             var sheet = tabletop.models[tabletop.modelNames[0]]; // first sheet
                             resolve({
